@@ -1,0 +1,14 @@
+[package]
+name = "remo_sdk"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio.workspace = true
+remo_api = { path = "../remo_api" }
+reqwest = "0.12.12"
+tokio-macros = { version = "2.5.0" }
+eyre = "0.6.12"
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.135"
+thiserror = "2.0.11"
