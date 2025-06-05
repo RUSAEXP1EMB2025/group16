@@ -30,8 +30,8 @@ impl From<&str> for Url {
     }
 }
 
-impl From<Url> for SiteInfo {
-    fn from(url: Url) -> Self {
+impl SiteInfo {
+    pub fn new(url: Url, html: String) -> Self {
         // TODO: Get SiteKind from string
         SiteInfo::Others {
             text: String::from(""),

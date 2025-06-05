@@ -20,7 +20,7 @@ use utoipa::ToSchema;
 pub struct AdjustLightingHttpRequestBody {
     pub remo_token: String,
     pub url: String,
-    pub text: String,
+    pub html: String,
 }
 
 impl AdjustLightingHttpRequestBody {
@@ -29,7 +29,7 @@ impl AdjustLightingHttpRequestBody {
         Ok(AdjustLigtingRequest {
             remo_token: self.remo_token,
             url: url.clone(),
-            site_info: SiteInfo::from(url),
+            site_info: SiteInfo::new(url, self.html),
         })
     }
 }

@@ -27,7 +27,7 @@ mod test {
 
     #[test]
     fn test_calc_atmosfreq() {
-        let site_info = SiteInfo::from(Url::from(""));
+        let site_info = SiteInfo::new(Url::from(""), String::from(""));
         let atmosfreq = AtmosFreq::new(&site_info);
         assert!((0..100).contains(&atmosfreq.0))
     }
