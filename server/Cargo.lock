@@ -66,7 +66,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "color-eyre",
- "remo_sdk",
+ "remo_api",
  "serde",
  "thiserror",
  "tokio",
@@ -1233,20 +1233,6 @@ dependencies = [
  "serde_with",
  "url",
  "uuid",
-]
-
-[[package]]
-name = "remo_sdk"
-version = "0.1.0"
-dependencies = [
- "eyre",
- "remo_api",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-macros",
 ]
 
 [[package]]

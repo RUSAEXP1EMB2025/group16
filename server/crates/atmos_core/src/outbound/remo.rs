@@ -1,17 +1,21 @@
-use crate::core::{
-    models::{AdjustLigtingRequest, AtmosFreq},
-    ports::{AdjustLigtingError, AdjustLigtingRepository},
-};
+use crate::core::models::AtmosFreq;
+
+use remo_api::apis::configuration::Configuration;
 
 #[derive(Clone)]
 pub struct Remo {
-    client: remo_sdk::Client,
+    config: Configuration,
 }
 
 impl Remo {
     pub fn new(token: &str) -> Self {
-        let client = remo_sdk::Client::new(None, Some(token.to_owned()), None, None);
-        Remo { client }
+        let config = Configuration {
+            oauth_access_token: Some(token.to_owned()),
+
+            ..Default::default()
+        };
+
+        Remo { config }
     }
 
     pub fn calc_lighting_amount(&self, atmosfreq: AtmosFreq) -> i32 {
