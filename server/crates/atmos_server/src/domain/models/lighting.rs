@@ -1,3 +1,4 @@
+use derive_more::From;
 use ts_rs::TS;
 
 use super::AtmosFreq;
@@ -7,20 +8,13 @@ use super::AtmosFreq;
 pub struct AdjustLigtingRequest {
     pub remo_token: String,
     pub url: Url,
-    pub site_info: SiteInfo,
+    pub texts: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, TS)]
 #[ts(export)]
 pub struct GetLigtingSignalsRequest {
     pub remo_token: String,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, TS)]
-pub enum SiteInfo {
-    Youtube { tags: Vec<String> },
-    Netflix { title: String },
-    Others { text: String },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, TS)]
@@ -38,24 +32,27 @@ impl From<&str> for Url {
     }
 }
 
-impl SiteInfo {
-    pub fn new(url: Url, html: String) -> Self {
-        // TODO: Get SiteKind from string
-        SiteInfo::Others {
-            text: String::from(""),
-        }
-    }
-}
+/// 現在の部屋の明るさ
+#[derive(From)]
+pub struct CurrentLightingAmount(i32);
 
+/// 明るさの目標値
+#[derive(From)]
 pub struct TargetLightingAmount(i32);
 
-impl From<AtmosFreq> for TargetLightingAmount {
+impl TargetLightingAmount {
     /// 雰囲気指数から部屋の明るさを考慮して目標の明るさを算出する
     ///
-    /// * `atmosfreq`: 雰囲気指数[AtmosFreq]
-    fn from(atmosfreq: AtmosFreq) -> Self {
-        // TODO: Calculate target lighting amount
+    /// * `atmosfreq`: 雰囲気指数
+    /// * `current_lighting_amount`: 現在の部屋の明るさ
+    pub fn new(
+        atmosfreq: impl Into<AtmosFreq>,
+        current_lighting_amount: CurrentLightingAmount,
+    ) -> Self {
+        let atmosfreq: AtmosFreq = atmosfreq.into();
+
+        // TODO:  雰囲気指数と現在の明るさから，新しい明るさの目標値を計算する。
         let amount = todo!();
-        TargetLightingAmount(amount);
+        CurrentLightingAmount(amount);
     }
 }

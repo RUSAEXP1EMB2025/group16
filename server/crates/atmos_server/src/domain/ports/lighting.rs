@@ -16,7 +16,9 @@ pub trait LigtingRepository: Send + Sync + Clone + 'static {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum GetLightingSignalsError {}
+pub enum GetLightingSignalsError {
+    // TODO: エラーを定義する
+}
 
 impl From<GetLightingSignalsError> for ApiError {
     fn from(e: GetLightingSignalsError) -> Self {

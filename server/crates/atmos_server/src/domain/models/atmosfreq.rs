@@ -1,34 +1,32 @@
-use super::lighting::SiteInfo;
+use derive_more::From;
 
-/// Amount of atmosfreq is between 0 ~ 100
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+// 雰囲気指数 (0 ~ 100)
+#[derive(PartialEq, Eq, PartialOrd, Ord, From)]
 pub struct AtmosFreq(i32);
 
 impl AtmosFreq {
-    pub fn new(site_info: &SiteInfo) -> Self {
-        let atmosfreq = Self::calc_atmosfreq(site_info);
-        AtmosFreq(atmosfreq)
+    pub fn new(texts: &Vec<String>) -> Self {
+        AtmosFreq::from(texts)
     }
+}
 
-    fn calc_atmosfreq(site_info: &SiteInfo) -> i32 {
-        // TODO:  Caluclate atmosfreq using text
-        match site_info {
-            SiteInfo::Youtube { tags } => todo!(),
-            SiteInfo::Netflix { title } => todo!(),
-            SiteInfo::Others { text } => todo!(),
-        }
+impl From<&Vec<String>> for AtmosFreq {
+    fn from(texts: &Vec<String>) -> Self {
+        // TODO: テキスト群から雰囲気指数を計算する。amountは0 ~ 100以内にする
+        let amount: i32 = todo!();
+        let amount = amount.clamp(0, 100);
+
+        AtmosFreq(amount)
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::AtmosFreq;
-    use crate::domain::models::lighting::{SiteInfo, Url};
 
     #[test]
-    fn test_calc_atmosfreq() {
-        let site_info = SiteInfo::new(Url::from(""), String::from(""));
-        let atmosfreq = AtmosFreq::new(&site_info);
+    fn test_valid_atmosfreq() {
+        let atmosfreq = AtmosFreq::from(0);
         assert!((0..100).contains(&atmosfreq.0))
     }
 }

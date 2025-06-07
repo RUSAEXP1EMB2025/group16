@@ -28,7 +28,7 @@ impl GetLightingSignalsHttpRequestBody {
 
 #[derive(Debug, Clone, thiserror::Error)]
 enum ParseGetLightingSignalsHttpRequestError {
-    // TODO: Define errors
+    // TODO: エラーを定義する
 }
 
 impl From<ParseGetLightingSignalsHttpRequestError> for ApiError {
@@ -37,7 +37,7 @@ impl From<ParseGetLightingSignalsHttpRequestError> for ApiError {
     }
 }
 
-// TODO: Define response data
+// TODO: レスポンスを定義する
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetLightingSignalsHttpResponseData {
     signals: Vec<Signal>,

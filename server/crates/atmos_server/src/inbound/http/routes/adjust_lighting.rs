@@ -1,6 +1,6 @@
 use crate::{
     domain::{
-        models::lighting::{AdjustLigtingRequest, SiteInfo, Url},
+        models::lighting::{AdjustLigtingRequest, Url},
         ports::lighting::LigtingRepository,
     },
     inbound::http::{
@@ -17,23 +17,22 @@ use utoipa::ToSchema;
 pub struct AdjustLightingHttpRequestBody {
     pub remo_token: String,
     pub url: String,
-    pub html: String,
+    pub texts: Vec<String>,
 }
 
 impl AdjustLightingHttpRequestBody {
     fn try_into_domain(self) -> Result<AdjustLigtingRequest, ParseAdjustLightingHttpRequestError> {
-        let url = Url::from(self.url);
         Ok(AdjustLigtingRequest {
             remo_token: self.remo_token,
-            url: url.clone(),
-            site_info: SiteInfo::new(url, self.html),
+            url: Url::from(self.url.clone()),
+            texts: self.texts,
         })
     }
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
 enum ParseAdjustLightingHttpRequestError {
-    // TODO: Define errors
+    // TODO: エラーを定義する
 }
 
 impl From<ParseAdjustLightingHttpRequestError> for ApiError {
@@ -42,7 +41,7 @@ impl From<ParseAdjustLightingHttpRequestError> for ApiError {
     }
 }
 
-// TODO: Define response data
+// TODO: レスポンスを定義する
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct AdjustLightingHttpResponseData;
 
