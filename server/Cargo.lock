@@ -54,14 +54,14 @@ dependencies = [
 name = "atmos"
 version = "0.1.0"
 dependencies = [
- "atmos_core",
+ "atmos_server",
  "color-eyre",
  "tokio",
  "tracing-subscriber",
 ]
 
 [[package]]
-name = "atmos_core"
+name = "atmos_server"
 version = "0.1.0"
 dependencies = [
  "axum",

@@ -1,6 +1,7 @@
-use crate::core::models::AtmosFreq;
+use crate::domain::{models::lighting::TargetLightingAmount, ports::lighting::AdjustLigtingError};
 
-use remo_api::apis::configuration::Configuration;
+use color_eyre::eyre;
+use remo_api::{apis::configuration::Configuration, models::Signal};
 
 #[derive(Clone)]
 pub struct Remo {
@@ -18,12 +19,25 @@ impl Remo {
         Remo { config }
     }
 
-    pub fn calc_lighting_amount(&self, atmosfreq: AtmosFreq) -> i32 {
-        // TODO:  Calculate lighting amount from atmosfreq
+    /// 電気のみの信号達を取得する
+    pub fn get_lighting_signals(&self) -> eyre::Result<Vec<Signal>> {
+        // TODO:  Get lighting signals
         todo!()
     }
 
-    pub fn apply_lighting(&self, lighting_amount: i32) {
+    /// Remoから現在の部屋の明るさを取得
+    pub fn get_lighting_amount(&self) -> eyre::Result<i32> {
+        // TODO: Get current lighting amount in the room
+        todo!()
+    }
+
+    /// 目標の明るさまで明るさを調整する
+    ///
+    /// * `lighting_amount`: 明るさの数値
+    pub fn apply_lighting(
+        &self,
+        target_lighting_amount: TargetLightingAmount,
+    ) -> Result<(), AdjustLigtingError> {
         // TODO: Apply lighting
         todo!()
     }

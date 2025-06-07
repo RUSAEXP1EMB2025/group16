@@ -1,6 +1,5 @@
-use atmos_core::{
-    self,
-    core::service::adjust_lighting::Service,
+use atmos_server::{
+    domain::Service,
     inbound::http::{HttpServer, HttpServerConfig},
 };
 use color_eyre::eyre;

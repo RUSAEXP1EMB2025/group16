@@ -1,26 +1,24 @@
 pub mod api;
 pub mod routes;
 
-use crate::core::ports::adjust_ligiting::AdjustLigtingRepository;
+use crate::domain::ports::lighting::LigtingRepository;
 
-use axum::routing::post;
+use axum::routing::{get, post};
 use color_eyre::eyre::{self, Context as _};
-use routes::adjust_lighting::adjust_lighting;
 use std::sync::Arc;
 use tokio::net;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-/// Configuration for the HTTP server.
+/// HTTPサーバーの設定
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HttpServerConfig<'a> {
     pub port: &'a str,
 }
 
 #[derive(Debug, Clone)]
-/// The global application state shared between all request handlers.
-pub struct AppState<ALR: AdjustLigtingRepository> {
-    adjust_lighting_repository: Arc<ALR>,
+pub struct AppState<LR: LigtingRepository> {
+    lighting_repository: Arc<LR>,
 }
 
 pub struct HttpServer<'a> {
@@ -30,8 +28,8 @@ pub struct HttpServer<'a> {
 }
 
 impl<'a> HttpServer<'a> {
-    pub async fn new<AL: AdjustLigtingRepository>(
-        adjust_lighting_repository: AL,
+    pub async fn new<LR: LigtingRepository>(
+        adjust_lighting_repository: LR,
         config: HttpServerConfig<'a>,
     ) -> eyre::Result<Self> {
         let trace_layer = tower_http::trace::TraceLayer::new_for_http().make_span_with(
@@ -42,12 +40,13 @@ impl<'a> HttpServer<'a> {
         );
 
         let state = AppState {
-            adjust_lighting_repository: Arc::new(adjust_lighting_repository),
+            lighting_repository: Arc::new(adjust_lighting_repository),
         };
 
         let router = axum::Router::new()
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-            .route("/adjust-lighting", post(adjust_lighting::<AL>))
+            .route("/lighting", post(routes::adjust_lighting::<LR>))
+            .route("/lighting", get(routes::get_lighting_signals::<LR>))
             .layer(trace_layer)
             .with_state(state);
 
@@ -71,10 +70,14 @@ impl<'a> HttpServer<'a> {
         axum::serve(self.listener, self.router)
             .await
             .context("received error from running server")?;
+
         Ok(())
     }
 }
 
 #[derive(OpenApi)]
-#[openapi(paths(routes::adjust_lighting::adjust_lighting))]
+#[openapi(paths(
+    routes::adjust_lighting::adjust_lighting,
+    routes::get_lighting_signals::get_lighting_signals
+))]
 struct ApiDoc;

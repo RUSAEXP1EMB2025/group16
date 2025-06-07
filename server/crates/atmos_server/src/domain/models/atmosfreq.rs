@@ -1,4 +1,4 @@
-use super::adjust_lighting::SiteInfo;
+use super::lighting::SiteInfo;
 
 /// Amount of atmosfreq is between 0 ~ 100
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
@@ -23,7 +23,7 @@ impl AtmosFreq {
 #[cfg(test)]
 mod test {
     use super::AtmosFreq;
-    use crate::core::models::adjust_lighting::{SiteInfo, Url};
+    use crate::domain::models::lighting::{SiteInfo, Url};
 
     #[test]
     fn test_calc_atmosfreq() {

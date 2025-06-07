@@ -1,10 +1,7 @@
 use crate::{
-    core::{
-        models::{
-            AdjustLigtingRequest,
-            adjust_lighting::{SiteInfo, Url},
-        },
-        ports::AdjustLigtingRepository,
+    domain::{
+        models::lighting::{AdjustLigtingRequest, SiteInfo, Url},
+        ports::lighting::LigtingRepository,
     },
     inbound::http::{
         AppState,
@@ -45,12 +42,13 @@ impl From<ParseAdjustLightingHttpRequestError> for ApiError {
     }
 }
 
+// TODO: Define response data
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct AdjustLightingHttpResponseData;
 
 #[utoipa::path(
     post,
-    path = "/adjust-lighting",
+    path = "/lighting",
     summary = "Adjust Lighting",
     description = "部屋の電気をサイト内容から調整",
     request_body = AdjustLightingHttpRequestBody,
@@ -58,15 +56,15 @@ pub struct AdjustLightingHttpResponseData;
         (status = 200, description = "Success"),
     ),
 )]
-pub async fn adjust_lighting<AL: AdjustLigtingRepository>(
+pub async fn adjust_lighting<AL: LigtingRepository>(
     State(state): State<AppState<AL>>,
     Json(body): Json<AdjustLightingHttpRequestBody>,
 ) -> Result<ApiSuccess<AdjustLightingHttpResponseData>, ApiError> {
     let domain_req = body.try_into_domain()?;
 
     state
-        .adjust_lighting_repository
-        .adjust_lighting(&domain_req)
+        .lighting_repository
+        .adjust(&domain_req)
         .await
         .map_err(ApiError::from)
         .map(|_| ApiSuccess::new(StatusCode::OK, AdjustLightingHttpResponseData))
