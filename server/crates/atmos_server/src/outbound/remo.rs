@@ -71,7 +71,8 @@ mod test {
     fn test_apply_lighting() {
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
-        let target_lighting_amount = TargetLightingAmount::from(2);
+        // TODO: 目標の明るさ値を調整する
+        let target_lighting_amount = TargetLightingAmount::from(2.0);
         assert!(remo.apply_lighting(target_lighting_amount).is_ok())
     }
 }
