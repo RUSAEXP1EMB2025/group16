@@ -1,6 +1,41 @@
 #import "@preview/chronos:0.2.1"
 #set text(font: "Noto Serif JP", lang: "ja")
 
+#v(1fr)
+#align(center)[= Atmos 設計書]
+
+#v(1em)
+
+#align(center)[== グループ16]
+
+#v(0.5em)
+
+#align(center, text()[
+  #text[更新日] #datetime.today().display("[year]年[month]月[day]日")
+])
+
+#v(1fr)
+
+#align(right)[
+  #table(
+    columns: auto,
+    align: (left),
+    stroke: none,
+    [大村理駆],
+    [安部魁起],
+    [渡邊煌志],
+    [伊藤智章],
+  )
+]
+
+#pagebreak();
+
+#outline();
+
+#set text(size: 0.8em)
+
+#pagebreak();
+
 = 設計内容の概要
 
 - 現在開いているページの内容を辞書検索し，特定のキーワードを抽出する。

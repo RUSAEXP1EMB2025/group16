@@ -16,6 +16,18 @@
 
 #v(1fr)
 
+#align(right)[
+  #table(
+    columns: auto,
+    align: (left),
+    stroke: none,
+    [大村理駆],
+    [安部魁起],
+    [渡邊煌志],
+    [伊藤智章],
+  )
+]
+
 #pagebreak();
 
 #outline();
