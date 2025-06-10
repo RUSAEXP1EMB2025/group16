@@ -2,7 +2,7 @@
 #set text(font: "Noto Serif JP", lang: "ja")
 
 #v(1fr)
-#align(center)[= 要求仕様書]
+#align(center)[= Atmos 要求仕様書]
 
 #v(1em)
 
