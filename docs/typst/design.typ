@@ -1,5 +1,5 @@
 #import "@preview/chronos:0.2.1"
-#set text(font: "LINE Seed JP_OTF", lang: "ja")
+#set text(font: "Noto Serif JP", lang: "ja")
 
 = 設計内容の概要
 

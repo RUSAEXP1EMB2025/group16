@@ -1,5 +1,5 @@
-#import "@preview/grape-suite:3.0.0": seminar-paper, german-dates
-#set text(font: "Noto Serif CJK JP", lang: "ja")
+#import "@preview/grape-suite:3.0.0": german-dates, seminar-paper
+#set text(font: "Noto Serif JP", lang: "ja")
 
 #v(1fr)
 #align(center)[== 要求仕様書]

@@ -11,10 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v4
+      - name: Install Noto Serif JP font
+        run: |
+          mkdir -p ~/.fonts
+          cp docs/fonts/*.ttf ~/.fonts/
+          fc-cache -fv
       - name: Compile all documents
         run: |
-          typst compile docs/typst/manual.typ docs/manual.pdf
-          typst compile docs/typst/design.typ docs/design.pdf
+          typst compile docs/typst/manual.typ docs/要求仕様書.pdf
+          typst compile docs/typst/design.typ docs/設計書.pdf
       - name: Configure Git
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
