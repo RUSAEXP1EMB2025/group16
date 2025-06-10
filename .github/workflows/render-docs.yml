@@ -22,5 +22,5 @@ jobs:
       - name: Commit and push PDF files
         run: |
           git add docs/*.pdf
-          git commit -m "Update PDF documentation" || echo "No changes to commit"
+          git commit -m "Compiled PDF documentation" || echo "No changes to commit"
           git push
