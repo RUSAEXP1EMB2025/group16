@@ -1,15 +1,26 @@
 name: Render documents
-on: push
+on:
+  push:
+    paths:
+      - '**/*.typ'
 jobs:
-  render:
+  render_documents:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        document: [
-          {source: "docs/typst/manual.typ", output: "docs/manual.pdf"},
-          {source: "docs/typst/design.typ", output: "docs/design.pdf"}
-        ]
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v4
-      - run: typst compile ${{ matrix.document.source }} ${{ matrix.document.output }}
+      - name: Compile all documents
+        run: |
+          typst compile docs/typst/manual.typ docs/manual.pdf
+          typst compile docs/typst/design.typ docs/design.pdf
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      - name: Commit and push PDF files
+        run: |
+          git add docs/*.pdf
+          git commit -m "Update PDF documentation" || echo "No changes to commit"
+          git push
