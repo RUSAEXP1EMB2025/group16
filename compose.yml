@@ -1,0 +1,10 @@
+services:
+  atmos_server:
+    container_name: atmos_server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}

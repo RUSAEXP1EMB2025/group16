@@ -4,6 +4,17 @@ silent: true
 dotenv:
   - ".env"
 
+vars:
+  COMPOSE_CMD:
+    sh: |
+      if command -v docker compose >/dev/null 2>&1; then
+        echo "docker compose"
+      elif command -v docker-compose >/dev/null 2>&1; then
+        echo "docker-compose"
+      else
+        echo "docker compose"
+      fi
+
 includes:
   extension:
     dir: ./client/atmos_extension/
@@ -25,6 +36,18 @@ tasks:
     deps:
       - task: extension:dev
       - task: server:dev
+
+  up:
+    desc: Up docker componse
+    cmd: "{{.COMPOSE_CMD}} up -d --build"
+
+  up-build:
+    desc: Up docker componse
+    cmd: "{{.COMPOSE_CMD}} up -d"
+
+  down:
+    desc: Down docker componse
+    cmd: "{{.COMPOSE_CMD}} down"
 
   gen:
     deps:
