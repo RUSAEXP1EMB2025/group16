@@ -1,0 +1,51 @@
+version: '3'
+silent: true
+
+tasks:
+  default:
+    desc: List commands of extension
+    cmd: "task -l | grep extension:"
+
+  dev:
+    desc: Start atmos extension
+    cmd: "pnpm dev"
+
+  install:
+    desc: Install dependencies
+    cmd: "pnpm install --frozen-lockfile"
+
+  add:
+    desc: Add library to web
+    cmd: pnpm add {{.CLI_ARGS}}
+
+  remove:
+    desc: Remove library to web
+    cmd: pnpm uninstall {{.CLI_ARGS}}
+
+  format:
+    desc: Run format
+    cmd: "pnpm biome format"
+    
+  format-w:
+    desc: Run format and write
+    cmd: "pnpm biome format --write"
+
+  lint:
+    desc: Run lint
+    cmd: "pnpm biome lint"
+
+  lint-w:
+    desc: Run lint
+    cmd: "pnpm biome lint --apply"
+
+  check:
+    desc: Run biome check
+    cmd: "pnpm biome check"
+
+  check-w:
+    desc: Run biome check with --write
+    cmd: "pnpm biome check --write"
+
+  gen-api:
+    desc: Generate API
+    cmd: pnpm openapi-zod-client http://localhost:{{.BACKEND_PORT}}/api-docs/openapi.json -o src/api/apiClient.ts 

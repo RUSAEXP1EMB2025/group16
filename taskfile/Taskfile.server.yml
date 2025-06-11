@@ -1,0 +1,20 @@
+version: '3'
+silent: true
+
+tasks:
+  default:
+    desc: List commands of server
+    cmd: "task -l | grep server:"
+
+  dev:
+    desc: Start atmos_server
+    cmd: "cargo run"
+
+  test:
+    desc: Run server test
+    cmd: "cargo test --workspace"
+
+  gen-types:
+    desc: Generate types from backend
+    cmds:
+      - export TS_RS_EXPORT_DIR="../../../client/atmos_extension/src/api/types/" && cargo test -p atmos_server

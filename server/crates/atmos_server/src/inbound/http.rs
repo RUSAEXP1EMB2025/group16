@@ -12,8 +12,8 @@ use utoipa_swagger_ui::SwaggerUi;
 
 /// HTTPサーバーの設定
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct HttpServerConfig<'a> {
-    pub port: &'a str,
+pub struct HttpServerConfig {
+    pub port: String,
 }
 
 #[derive(Debug, Clone)]
@@ -21,16 +21,16 @@ pub struct AppState<LR: LigtingRepository> {
     lighting_repository: Arc<LR>,
 }
 
-pub struct HttpServer<'a> {
+pub struct HttpServer {
     router: axum::Router,
     listener: net::TcpListener,
-    port: &'a str,
+    port: String,
 }
 
-impl<'a> HttpServer<'a> {
+impl HttpServer {
     pub async fn new<LR: LigtingRepository>(
         adjust_lighting_repository: LR,
-        config: HttpServerConfig<'a>,
+        config: HttpServerConfig,
     ) -> eyre::Result<Self> {
         let trace_layer = tower_http::trace::TraceLayer::new_for_http().make_span_with(
             |request: &axum::extract::Request<_>| {

@@ -6,8 +6,13 @@
     "useIgnoreFile": false
   },
   "files": {
-    "ignoreUnknown": false,
-    "ignore": []
+    "ignore": [
+      "./src/api/**/*",
+      "./src/types/*"
+    ],
+    "include": [
+      "./src/**/*"
+    ]
   },
   "formatter": {
     "indentStyle": "space",

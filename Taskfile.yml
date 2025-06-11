@@ -1,0 +1,32 @@
+version: '3'
+silent: true
+
+dotenv:
+  - ".env"
+
+includes:
+  extension:
+    dir: ./client/atmos_extension/
+    taskfile: ./taskfile/Taskfile.extension.yml
+
+  server:
+    dir: ./server
+    taskfile: ./taskfile/Taskfile.server.yml
+
+tasks:
+  default:
+    desc: List all tasks
+    aliases:
+      - list
+    cmd: task -l
+
+  dev:
+    desc: Start extension and server
+    deps:
+      - task: extension:dev
+      - task: server:dev
+
+  gen:
+    deps:
+      - server:gen-types
+      - extension:gen-api

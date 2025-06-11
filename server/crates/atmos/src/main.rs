@@ -11,7 +11,9 @@ async fn main() -> eyre::Result<()> {
         .with(tracing_subscriber::fmt::layer().pretty())
         .init();
 
-    let server_config = HttpServerConfig { port: "5152" };
+    let server_config = HttpServerConfig {
+        port: std::env::var("BACKEND_PORT").unwrap_or_else(|_| String::from("5152")),
+    };
 
     let http_server = HttpServer::new(Service, server_config).await.unwrap();
 
