@@ -8,3 +8,10 @@ services:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     environment:
       BACKEND_PORT: ${BACKEND_PORT}
+  atmos_client:
+    container_name: atmos_client
+    build:
+      context: ./client/atmos_extension/
+      dockerfile: Dockerfile
+    volumes:
+      - ./client/atmos_extension/.output:/usr/src/app/.output
