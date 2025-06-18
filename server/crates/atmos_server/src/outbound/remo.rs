@@ -55,6 +55,7 @@ mod test {
 
     #[tokio::test]
     async fn test_get_lighting_signals() {
+        dotenvy::dotenv().unwrap();
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
         assert!(remo.get_lighting_signals().await.is_ok());
@@ -62,6 +63,7 @@ mod test {
 
     #[tokio::test]
     async fn test_get_lighting_amount() {
+        dotenvy::dotenv().unwrap();
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
         assert!(remo.get_lighting_amount().await.is_ok())
@@ -69,6 +71,7 @@ mod test {
 
     #[tokio::test]
     async fn test_apply_lighting() {
+        dotenvy::dotenv().unwrap();
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
         // TODO: 目標の明るさ値を調整する

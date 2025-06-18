@@ -20,3 +20,4 @@ remo_api = { path = "../remo_api" }
 derive_more = { workspace = true, features = ["from"] }
 url.workspace = true
 atmos_freq = { path = "../atmos_freq" }
+dotenvy = "0.15.7"
