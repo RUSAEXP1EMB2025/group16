@@ -23,13 +23,13 @@ impl Remo {
     }
 
     /// 電気のみの信号達を取得する
-    pub fn get_lighting_signals(&self) -> eyre::Result<Vec<Signal>> {
+    pub async fn get_lighting_signals(&self) -> eyre::Result<Vec<Signal>> {
         // TODO: NatureRemoのAPIを使用して，電気のみの信号達を取得する
         todo!()
     }
 
     /// Remoから現在の部屋の明るさを取得
-    pub fn get_lighting_amount(&self) -> eyre::Result<CurrentLightingAmount> {
+    pub async fn get_lighting_amount(&self) -> eyre::Result<CurrentLightingAmount> {
         // TODO: NatureRemoのAPIを使用して，現在の部屋の明るさを取得する
         todo!()
     }
@@ -37,7 +37,7 @@ impl Remo {
     /// 目標の明るさまで明るさを調整する
     ///
     /// * `lighting_amount`: 明るさの数値
-    pub fn apply_lighting(
+    pub async fn apply_lighting(
         &self,
         target_lighting_amount: TargetLightingAmount,
     ) -> Result<(), AdjustLigtingError> {
@@ -53,26 +53,26 @@ mod test {
 
     use std::env;
 
-    #[test]
-    fn test_get_lighting_signals() {
+    #[tokio::test]
+    async fn test_get_lighting_signals() {
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
-        assert!(remo.get_lighting_signals().is_ok());
+        assert!(remo.get_lighting_signals().await.is_ok());
     }
 
-    #[test]
-    fn test_get_lighting_amount() {
+    #[tokio::test]
+    async fn test_get_lighting_amount() {
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
-        assert!(remo.get_lighting_amount().is_ok())
+        assert!(remo.get_lighting_amount().await.is_ok())
     }
 
-    #[test]
-    fn test_apply_lighting() {
+    #[tokio::test]
+    async fn test_apply_lighting() {
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
         // TODO: 目標の明るさ値を調整する
         let target_lighting_amount = TargetLightingAmount::from(2.0);
-        assert!(remo.apply_lighting(target_lighting_amount).is_ok())
+        assert!(remo.apply_lighting(target_lighting_amount).await.is_ok())
     }
 }
