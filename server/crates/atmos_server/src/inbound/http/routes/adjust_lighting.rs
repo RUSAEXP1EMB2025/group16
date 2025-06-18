@@ -1,8 +1,5 @@
 use crate::{
-    domain::{
-        models::lighting::{AdjustLigtingRequest, Url},
-        ports::lighting::LigtingRepository,
-    },
+    domain::{models::lighting::AdjustLigtingRequest, ports::lighting::LigtingRepository},
     inbound::http::{
         AppState,
         api::{ApiError, ApiSuccess},
@@ -11,6 +8,7 @@ use crate::{
 
 use axum::{Json, extract::State, http::StatusCode};
 use serde::{Deserialize, Serialize};
+use url::Url;
 use utoipa::ToSchema;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, ToSchema)]
@@ -24,7 +22,7 @@ impl AdjustLightingHttpRequestBody {
     fn try_into_domain(self) -> Result<AdjustLigtingRequest, ParseAdjustLightingHttpRequestError> {
         Ok(AdjustLigtingRequest {
             remo_token: self.remo_token,
-            url: Url::from(self.url.clone()),
+            url: Url::parse(&self.url).unwrap(),
             texts: self.texts,
         })
     }

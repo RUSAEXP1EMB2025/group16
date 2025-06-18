@@ -1,0 +1,11 @@
+[package]
+name = "atmos_freq"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+reqwest = "0.12.20"
+scraper = "0.23.1"
+url.workspace = true
+derive_more = { workspace = true, features = ["from"] }
+atmos_dict = { path = "../atmos_dict" }
