@@ -5,3 +5,9 @@ impl AtmosFreq {
         todo!()
     }
 }
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn test_generate_atmosfreq_from_general() {}
+}
