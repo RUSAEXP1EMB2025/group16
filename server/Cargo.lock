@@ -54,6 +54,7 @@ dependencies = [
 name = "atmos"
 version = "0.1.0"
 dependencies = [
+ "atmos_dict",
  "atmos_server",
  "color-eyre",
  "tokio",
@@ -63,13 +64,16 @@ dependencies = [
 [[package]]
 name = "atmos_dict"
 version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "csv",
+]
 
 [[package]]
 name = "atmos_freq"
 version = "0.1.0"
 dependencies = [
  "atmos_dict",
- "csv",
  "derive_more 2.0.1",
  "reqwest",
  "scraper",
@@ -80,6 +84,7 @@ dependencies = [
 name = "atmos_server"
 version = "0.1.0"
 dependencies = [
+ "atmos_dict",
  "atmos_freq",
  "axum",
  "color-eyre",

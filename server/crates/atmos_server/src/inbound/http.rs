@@ -3,7 +3,7 @@ pub mod routes;
 
 use crate::domain::{
     Service,
-    ports::{KeywordsRepository, KeywordsService, RemoRepository, RemoService},
+    ports::{AtmosdictRepository, AtmosdictService, RemoRepository, RemoService},
 };
 
 use axum::routing::{get, post};
@@ -20,7 +20,7 @@ pub struct HttpServerConfig {
 }
 
 #[derive(Debug, Clone)]
-pub struct AppState<S: RemoService + KeywordsService> {
+pub struct AppState<S: RemoService + AtmosdictService> {
     service: Arc<S>,
 }
 
@@ -37,7 +37,7 @@ impl HttpServer {
     ) -> eyre::Result<Self>
     where
         LR: RemoRepository,
-        KR: KeywordsRepository,
+        KR: AtmosdictRepository,
     {
         let trace_layer = tower_http::trace::TraceLayer::new_for_http().make_span_with(
             |request: &axum::extract::Request<_>| {
@@ -55,6 +55,7 @@ impl HttpServer {
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
             .route("/lighting", post(routes::adjust_lighting))
             .route("/lighting", get(routes::get_lighting_signals))
+            .route("/atmosdict", get(routes::get_atmosdict))
             .layer(trace_layer)
             .with_state(state);
 
@@ -87,6 +88,6 @@ impl HttpServer {
 #[openapi(paths(
     routes::adjust_lighting::adjust_lighting,
     routes::get_lighting_signals::get_lighting_signals,
-    routes::get_keywords::get_keywords
+    routes::get_atmosdict::get_atmosdict
 ))]
 struct ApiDoc;

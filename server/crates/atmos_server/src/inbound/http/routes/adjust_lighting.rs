@@ -1,7 +1,7 @@
 use crate::{
     domain::{
         models::remo::AdjustLigtingRequest,
-        ports::{KeywordsService, RemoService},
+        ports::{AtmosdictService, RemoService},
     },
     inbound::http::{
         AppState,
@@ -56,7 +56,7 @@ pub struct AdjustLightingHttpResponseData;
         (status = 200, description = "Success"),
     ),
 )]
-pub async fn adjust_lighting<S: RemoService + KeywordsService>(
+pub async fn adjust_lighting<S: RemoService + AtmosdictService>(
     State(state): State<AppState<S>>,
     Json(body): Json<AdjustLightingHttpRequestBody>,
 ) -> Result<ApiSuccess<AdjustLightingHttpResponseData>, ApiError> {

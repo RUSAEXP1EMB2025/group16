@@ -6,7 +6,7 @@ use utoipa::ToSchema;
 use crate::{
     domain::{
         models::remo::GetLigtingSignalsRequest,
-        ports::{KeywordsService, RemoService},
+        ports::{AtmosdictService, RemoService},
     },
     inbound::http::{
         AppState,
@@ -56,7 +56,7 @@ pub struct GetLightingSignalsHttpResponseData {
         (status = 200, description = "Success"),
     ),
 )]
-pub async fn get_lighting_signals<S: RemoService + KeywordsService>(
+pub async fn get_lighting_signals<S: RemoService + AtmosdictService>(
     State(state): State<AppState<S>>,
     Json(body): Json<GetLightingSignalsHttpRequestBody>,
 ) -> Result<ApiSuccess<GetLightingSignalsHttpResponseData>, ApiError> {

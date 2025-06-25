@@ -1,7 +1,7 @@
 use remo_api::models::Signal;
 
 use super::models::{
-    keywords::{GetKeywordsError, GetKeywordsRequest},
+    atmosdict::GetAtmosdictError,
     remo::{
         AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError, GetLigtingSignalsRequest,
     },
@@ -18,9 +18,8 @@ pub trait RemoRepository: Send + Sync + Clone + 'static {
 }
 
 #[trait_variant::make(Send)]
-pub trait KeywordsRepository: Send + Sync + Clone + 'static {
-    async fn get_keywords(&self, req: &GetKeywordsRequest)
-    -> Result<Vec<String>, GetKeywordsError>;
+pub trait AtmosdictRepository: Send + Sync + Clone + 'static {
+    async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError>;
 }
 
 #[trait_variant::make(Send)]
@@ -34,7 +33,6 @@ pub trait RemoService {
 }
 
 #[trait_variant::make(Send)]
-pub trait KeywordsService: Send + Sync + Clone + 'static {
-    async fn get_keywords(&self, req: &GetKeywordsRequest)
-    -> Result<Vec<String>, GetKeywordsError>;
+pub trait AtmosdictService: Send + Sync + Clone + 'static {
+    async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError>;
 }
