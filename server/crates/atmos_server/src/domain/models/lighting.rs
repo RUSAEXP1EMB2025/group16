@@ -16,7 +16,7 @@ pub struct GetLigtingSignalsRequest {
 
 /// 現在の部屋の明るさ
 #[derive(PartialEq, Debug, From)]
-pub struct CurrentLightingAmount(f64);
+pub struct CurrentLightingAmount(f32);
 
 /// 明るさの目標値
 #[derive(PartialEq, Debug, From)]
