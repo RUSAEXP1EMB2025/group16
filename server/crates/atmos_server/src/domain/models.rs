@@ -1,2 +1,2 @@
-pub mod keywords;
+pub mod atmosdict;
 pub mod remo;

@@ -2,20 +2,20 @@ use remo_api::models::Signal;
 
 use super::{
     models::{
-        keywords::{GetKeywordsError, GetKeywordsRequest},
+        atmosdict::GetAtmosdictError,
         remo::{
             AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError,
             GetLigtingSignalsRequest,
         },
     },
-    ports::{KeywordsRepository, KeywordsService, RemoRepository, RemoService},
+    ports::{AtmosdictRepository, AtmosdictService, RemoRepository, RemoService},
 };
 
 #[derive(Clone)]
 pub struct Service<LR, KR>
 where
     LR: RemoRepository,
-    KR: KeywordsRepository,
+    KR: AtmosdictRepository,
 {
     lighting_repository: LR,
     keywords_repository: KR,
@@ -24,7 +24,7 @@ where
 impl<LR, KR> Service<LR, KR>
 where
     LR: RemoRepository,
-    KR: KeywordsRepository,
+    KR: AtmosdictRepository,
 {
     pub fn new(lighting_repository: LR, keywords_repository: KR) -> Self {
         Self {
@@ -45,7 +45,7 @@ where
 impl<LR, KR> RemoService for Service<LR, KR>
 where
     LR: RemoRepository,
-    KR: KeywordsRepository,
+    KR: AtmosdictRepository,
 {
     async fn get_lighting_signals(
         &self,
@@ -59,15 +59,12 @@ where
     }
 }
 
-impl<LR, KR> KeywordsService for Service<LR, KR>
+impl<LR, KR> AtmosdictService for Service<LR, KR>
 where
     LR: RemoRepository,
-    KR: KeywordsRepository,
+    KR: AtmosdictRepository,
 {
-    async fn get_keywords(
-        &self,
-        req: &GetKeywordsRequest,
-    ) -> Result<Vec<String>, GetKeywordsError> {
-        self.keywords_repository.get_keywords(req).await
+    async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError> {
+        self.keywords_repository.get_atmos_dict().await
     }
 }
