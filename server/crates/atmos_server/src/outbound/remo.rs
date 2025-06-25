@@ -74,7 +74,9 @@ mod test {
         dotenvy::dotenv().unwrap();
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
         let remo = Remo::new(&token);
-        assert!(remo.get_lighting_amount().await.is_ok())
+        let amount = remo.get_lighting_amount().await;
+        dbg!(&amount);
+        assert!(amount.is_ok());
     }
 
     #[tokio::test]
