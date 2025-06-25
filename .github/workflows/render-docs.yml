@@ -20,6 +20,7 @@ jobs:
         run: |
           typst compile docs/typst/manual.typ docs/要求仕様書.pdf
           typst compile docs/typst/design.typ docs/設計書.pdf
+          typst compile docs/typst/weekly-report.typ docs/週報.pdf
       - name: Configure Git
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
