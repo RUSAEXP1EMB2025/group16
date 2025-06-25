@@ -2,6 +2,8 @@ use atmos_freq::AtmosFreq;
 use derive_more::From;
 use url::Url;
 
+use crate::inbound::http::api::ApiError;
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AdjustLigtingRequest {
     pub remo_token: String,
@@ -12,6 +14,26 @@ pub struct AdjustLigtingRequest {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct GetLigtingSignalsRequest {
     pub remo_token: String,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum GetLightingSignalsError {
+    // TODO: エラーを定義する
+}
+
+impl From<GetLightingSignalsError> for ApiError {
+    fn from(e: GetLightingSignalsError) -> Self {
+        ApiError::InternalServerError(e.to_string())
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum AdjustLigtingError {}
+
+impl From<AdjustLigtingError> for ApiError {
+    fn from(e: AdjustLigtingError) -> Self {
+        ApiError::InternalServerError(e.to_string())
+    }
 }
 
 /// 現在の部屋の明るさ

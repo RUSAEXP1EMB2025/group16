@@ -62,7 +62,7 @@ fn load_dicts_from_csv(
 mod test {
     use crate::AtmosFreq;
 
-    fn sample_words(s: Vec<&str>) ->Vec<String>{
+    fn sample_words(s: Vec<&str>) -> Vec<String> {
         s.into_iter().map(String::from).collect()
     }
 

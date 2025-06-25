@@ -1,7 +1,10 @@
 pub mod api;
 pub mod routes;
 
-use crate::domain::ports::lighting::LigtingRepository;
+use crate::domain::{
+    Service,
+    ports::{KeywordsRepository, KeywordsService, RemoRepository, RemoService},
+};
 
 use axum::routing::{get, post};
 use color_eyre::eyre::{self, Context as _};
@@ -17,8 +20,8 @@ pub struct HttpServerConfig {
 }
 
 #[derive(Debug, Clone)]
-pub struct AppState<LR: LigtingRepository> {
-    lighting_repository: Arc<LR>,
+pub struct AppState<S: RemoService + KeywordsService> {
+    service: Arc<S>,
 }
 
 pub struct HttpServer {
@@ -28,25 +31,30 @@ pub struct HttpServer {
 }
 
 impl HttpServer {
-    pub async fn new<LR: LigtingRepository>(
-        adjust_lighting_repository: LR,
+    pub async fn new<LR, KR>(
+        service: Service<LR, KR>,
         config: HttpServerConfig,
-    ) -> eyre::Result<Self> {
+    ) -> eyre::Result<Self>
+    where
+        LR: RemoRepository,
+        KR: KeywordsRepository,
+    {
         let trace_layer = tower_http::trace::TraceLayer::new_for_http().make_span_with(
             |request: &axum::extract::Request<_>| {
                 let uri = request.uri().to_string();
+
                 tracing::info_span!("http_request", method = ?request.method(), uri)
             },
         );
 
         let state = AppState {
-            lighting_repository: Arc::new(adjust_lighting_repository),
+            service: Arc::new(service),
         };
 
         let router = axum::Router::new()
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-            .route("/lighting", post(routes::adjust_lighting::<LR>))
-            .route("/lighting", get(routes::get_lighting_signals::<LR>))
+            .route("/lighting", post(routes::adjust_lighting))
+            .route("/lighting", get(routes::get_lighting_signals))
             .layer(trace_layer)
             .with_state(state);
 
@@ -78,6 +86,7 @@ impl HttpServer {
 #[derive(OpenApi)]
 #[openapi(paths(
     routes::adjust_lighting::adjust_lighting,
-    routes::get_lighting_signals::get_lighting_signals
+    routes::get_lighting_signals::get_lighting_signals,
+    routes::get_keywords::get_keywords
 ))]
 struct ApiDoc;
