@@ -4,7 +4,10 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::{
-    domain::{models::lighting::GetLigtingSignalsRequest, ports::lighting::LigtingRepository},
+    domain::{
+        models::remo::GetLigtingSignalsRequest,
+        ports::{KeywordsService, RemoService},
+    },
     inbound::http::{
         AppState,
         api::{ApiError, ApiSuccess},
@@ -53,15 +56,15 @@ pub struct GetLightingSignalsHttpResponseData {
         (status = 200, description = "Success"),
     ),
 )]
-pub async fn get_lighting_signals<AL: LigtingRepository>(
-    State(state): State<AppState<AL>>,
+pub async fn get_lighting_signals<S: RemoService + KeywordsService>(
+    State(state): State<AppState<S>>,
     Json(body): Json<GetLightingSignalsHttpRequestBody>,
 ) -> Result<ApiSuccess<GetLightingSignalsHttpResponseData>, ApiError> {
     let domain_req = body.try_into_domain()?;
 
     state
-        .lighting_repository
-        .get_signals(&domain_req)
+        .service
+        .get_lighting_signals(&domain_req)
         .await
         .map_err(ApiError::from)
         .map(|signals| {
