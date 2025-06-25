@@ -4,7 +4,7 @@ use crate::domain::{
 };
 
 use color_eyre::eyre;
-use remo_api::{apis::configuration::Configuration, models::Signal};
+use remo_api::{apis::{configuration::Configuration, default_api::call_1_devices_get}, models::Signal};
 
 #[derive(Clone)]
 pub struct Remo {
@@ -30,8 +30,13 @@ impl Remo {
 
     /// Remoから現在の部屋の明るさを取得
     pub async fn get_lighting_amount(&self) -> eyre::Result<CurrentLightingAmount> {
-        // TODO: NatureRemoのAPIを使用して，現在の部屋の明るさを取得する
-        todo!()
+        let devices  = call_1_devices_get(&self.config).await?;
+        let device = devices.first().unwrap();
+        let events = device.newest_events.as_ref().unwrap();
+        let il = events.get("il").unwrap();
+        let lighting_lighting_amount = il.val.unwrap();
+        Ok(CurrentLightingAmount::from(lighting_lighting_amount))
+        
     }
 
     /// 目標の明るさまで明るさを調整する
@@ -42,8 +47,11 @@ impl Remo {
         target_lighting_amount: TargetLightingAmount,
     ) -> Result<(), AdjustLigtingError> {
         // TODO: NatureRemoのAPIを利用して，目標の明るさまで調整する
-        todo!()
-    }
+        
+
+        todo!()    
+        }
+    
 }
 
 #[cfg(test)]
