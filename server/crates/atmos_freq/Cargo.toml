@@ -9,3 +9,4 @@ scraper = "0.23.1"
 url.workspace = true
 derive_more = { workspace = true, features = ["from"] }
 atmos_dict = { path = "../atmos_dict" }
+csv = "1.3.1"
