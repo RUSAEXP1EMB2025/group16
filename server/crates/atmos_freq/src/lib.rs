@@ -8,9 +8,9 @@ use url::Url;
 pub struct AtmosFreq(f64);
 
 impl AtmosFreq {
-    pub fn new(url: &Url, keywords: &Vec<String>) -> Self {
+    pub async fn new(url: &Url, keywords: &Vec<String>) -> Self {
         match url.as_str() {
-            "path/to/youtube" => Self::from_youtube(keywords),
+            "path/to/youtube" => Self::from_youtube(url, keywords).await,
             "path/to/netflix" => Self::from_netflix(keywords),
             _ => Self::from_general(keywords),
         }
@@ -23,8 +23,8 @@ mod test {
 
     use super::AtmosFreq;
 
-    #[test]
-    fn test_calc_atmosfreq_from_general() {
+    #[tokio::test]
+    async fn test_calc_atmosfreq_from_general() {
         // TODO: テストケースの実装
         let texts = vec!["a", "b", "c"];
         let url = Url::parse("").unwrap();
@@ -32,7 +32,7 @@ mod test {
 
         let texts = texts.into_iter().map(String::from).collect();
 
-        let atmosfreq = AtmosFreq::new(&url, &texts);
+        let atmosfreq = AtmosFreq::new(&url, &texts).await;
         assert_eq!(atmosfreq, AtmosFreq::from(expect_result))
     }
 }

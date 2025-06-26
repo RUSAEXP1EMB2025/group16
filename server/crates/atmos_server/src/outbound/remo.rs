@@ -7,7 +7,7 @@ use crate::domain::{
 };
 
 use atmos_freq::AtmosFreq;
-use color_eyre::eyre;
+use color_eyre::{eyre, owo_colors::colors::xterm::AnakiwaBlue};
 use remo_api::{
     apis::{configuration::Configuration, default_api::call_1_devices_get},
     models::Signal,
@@ -58,7 +58,7 @@ impl Remo {
 impl RemoRepository for Remo {
     async fn adjust_lighting(&self, req: &AdjustLigtingRequest) -> Result<(), AdjustLigtingError> {
         let current_lighting_amount = self.get_lighting_amount(&req.remo_token).await.unwrap();
-        let atmosfreq = AtmosFreq::new(&req.url, &req.texts);
+        let atmosfreq = AtmosFreq::new(&req.url, &req.texts).await;
 
         let target_lighting_amount = TargetLightingAmount::new(atmosfreq, current_lighting_amount);
 
