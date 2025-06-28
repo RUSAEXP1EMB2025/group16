@@ -4,6 +4,6 @@ use crate::domain::{models::atmosdict::GetAtmosdictError, ports::AtmosdictReposi
 
 impl AtmosdictRepository for Atmosdict {
     async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError> {
-        self.get_all().map_err(|_| GetAtmosdictError::Sample)
+        self.get_all().map_err(GetAtmosdictError::GetWordlist)
     }
 }

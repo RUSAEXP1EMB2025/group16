@@ -62,13 +62,14 @@ enum ParseAdjustLightingHttpRequestError {
 
 impl From<ParseAdjustLightingHttpRequestError> for ApiError {
     fn from(e: ParseAdjustLightingHttpRequestError) -> Self {
-        Self::FailedToAdjustLights(format!("Failed to adjust lights: {}", e))
+        Self::InternalServer(format!("Invalid params: {}", e))
     }
 }
 
-// TODO: レスポンスを定義する
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-pub struct AdjustLightingHttpResponseData;
+pub struct AdjustLightingHttpResponseData {
+    message: &'static str,
+}
 
 #[utoipa::path(
     post,
@@ -91,5 +92,12 @@ pub async fn adjust_lighting<S: RemoService + AtmosdictService>(
         .adjust_lighting(&domain_req)
         .await
         .map_err(ApiError::from)
-        .map(|_| ApiSuccess::new(StatusCode::OK, AdjustLightingHttpResponseData))
+        .map(|_| {
+            ApiSuccess::new(
+                StatusCode::OK,
+                AdjustLightingHttpResponseData {
+                    message: "Successfly adjusted lighting amount",
+                },
+            )
+        })
 }

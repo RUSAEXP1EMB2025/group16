@@ -1,4 +1,5 @@
 use atmos_freq::{AtmosFreq, SiteInfo};
+use color_eyre::eyre;
 use derive_more::From;
 
 use crate::inbound::http::api::ApiError;
@@ -16,21 +17,27 @@ pub struct GetLigtingSignalsRequest {
 
 #[derive(Debug, thiserror::Error)]
 pub enum GetLightingSignalsError {
-    // TODO: エラーを定義する
+    #[error("Failed to get lighting signals")]
+    GetLightingSignals(eyre::Report),
 }
 
 impl From<GetLightingSignalsError> for ApiError {
     fn from(e: GetLightingSignalsError) -> Self {
-        ApiError::InternalServerError(e.to_string())
+        ApiError::InternalServer(e.to_string())
     }
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum AdjustLigtingError {}
+pub enum AdjustLigtingError {
+    #[error("Failed to get lighting amount: {0}")]
+    GetLightingAmount(eyre::Report),
+    #[error("Failed to apply lighing to the device: {0}")]
+    ApplyLighting(eyre::Report),
+}
 
 impl From<AdjustLigtingError> for ApiError {
     fn from(e: AdjustLigtingError) -> Self {
-        ApiError::InternalServerError(e.to_string())
+        ApiError::InternalServer(e.to_string())
     }
 }
 

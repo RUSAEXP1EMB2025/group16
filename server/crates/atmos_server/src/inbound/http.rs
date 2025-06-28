@@ -42,7 +42,6 @@ impl HttpServer {
         let trace_layer = tower_http::trace::TraceLayer::new_for_http().make_span_with(
             |request: &axum::extract::Request<_>| {
                 let uri = request.uri().to_string();
-
                 tracing::info_span!("http_request", method = ?request.method(), uri)
             },
         );

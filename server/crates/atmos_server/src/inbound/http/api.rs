@@ -8,13 +8,13 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ApiError {
-    InternalServerError(String),
-    FailedToAdjustLights(String),
+    InternalServer(String),
+    NotFound(String),
 }
 
 impl From<eyre::Error> for ApiError {
     fn from(e: eyre::Error) -> Self {
-        Self::InternalServerError(e.to_string())
+        Self::InternalServer(e.to_string())
     }
 }
 
@@ -77,7 +77,7 @@ impl IntoResponse for ApiError {
         use ApiError::*;
 
         match self {
-            InternalServerError(e) => {
+            InternalServer(e) => {
                 tracing::error!("{}", e);
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
@@ -88,13 +88,13 @@ impl IntoResponse for ApiError {
                 )
                     .into_response()
             }
-            FailedToAdjustLights(e) => {
+            NotFound(e) => {
                 tracing::error!("{}", e);
                 (
-                    StatusCode::INTERNAL_SERVER_ERROR,
+                    StatusCode::NOT_FOUND,
                     Json(ApiResponseBody::new_error(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        "Internal server error".to_string(),
+                        StatusCode::NOT_FOUND,
+                        "Not found".to_string(),
                     )),
                 )
                     .into_response()

@@ -9,7 +9,6 @@ use crate::{
     },
 };
 
-// TODO: レスポンスを定義する
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetAtmosdictHttpResponseData {
     wordlist: Vec<String>,

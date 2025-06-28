@@ -7,7 +7,7 @@ use crate::domain::{
 };
 
 use atmos_freq::AtmosFreq;
-use color_eyre::eyre;
+use color_eyre::eyre::{self, ContextCompat};
 use remo_api::{
     apis::{configuration::Configuration, default_api::call_1_devices_get},
     models::Signal,
@@ -34,10 +34,16 @@ impl Remo {
     /// Remoから現在の部屋の明るさを取得
     pub async fn get_lighting_amount(&self, token: &str) -> eyre::Result<CurrentLightingAmount> {
         let devices = call_1_devices_get(&Self::config(token)).await?;
-        let device = devices.first().unwrap();
-        let events = device.newest_events.as_ref().unwrap();
-        let il = events.get("il").unwrap();
-        let lighting_lighting_amount = il.val.unwrap();
+        let device = devices.first().context("Device not found")?;
+        let events = device
+            .newest_events
+            .as_ref()
+            .context("Event not found in device")?;
+
+        let il = events
+            .get("il")
+            .context("illumination not found in event")?;
+        let lighting_lighting_amount = il.val.context("Value not found in illumination")?;
         Ok(CurrentLightingAmount::from(lighting_lighting_amount))
     }
 
@@ -48,7 +54,7 @@ impl Remo {
         &self,
         token: &str,
         target_lighting_amount: TargetLightingAmount,
-    ) -> Result<(), AdjustLigtingError> {
+    ) -> eyre::Result<()> {
         // TODO: NatureRemoのAPIを利用して，目標の明るさまで調整する
 
         todo!()
@@ -57,14 +63,17 @@ impl Remo {
 
 impl RemoRepository for Remo {
     async fn adjust_lighting(&self, req: &AdjustLigtingRequest) -> Result<(), AdjustLigtingError> {
-        let current_lighting_amount = self.get_lighting_amount(&req.remo_token).await.unwrap();
-        let atmosfreq = AtmosFreq::new(&req.site_info).await;
+        let current_lighting_amount = self
+            .get_lighting_amount(&req.remo_token)
+            .await
+            .map_err(AdjustLigtingError::GetLightingAmount)?;
 
+        let atmosfreq = AtmosFreq::new(&req.site_info).await;
         let target_lighting_amount = TargetLightingAmount::new(atmosfreq, current_lighting_amount);
 
         self.apply_lighting(&req.remo_token, target_lighting_amount)
             .await
-            .unwrap();
+            .map_err(AdjustLigtingError::ApplyLighting)?;
 
         Ok(())
     }
@@ -74,7 +83,10 @@ impl RemoRepository for Remo {
         req: &GetLigtingSignalsRequest,
     ) -> Result<Vec<Signal>, GetLightingSignalsError> {
         let remo = Remo;
-        let ligitng_signals = remo.get_lighting_signals(&req.remo_token).await.unwrap();
+        let ligitng_signals = remo
+            .get_lighting_signals(&req.remo_token)
+            .await
+            .map_err(GetLightingSignalsError::GetLightingSignals)?;
         Ok(ligitng_signals)
     }
 }

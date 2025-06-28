@@ -20,27 +20,13 @@ pub struct GetLightingSignalsHttpRequestBody {
 }
 
 impl GetLightingSignalsHttpRequestBody {
-    fn try_into_domain(
-        self,
-    ) -> Result<GetLigtingSignalsRequest, ParseGetLightingSignalsHttpRequestError> {
-        Ok(GetLigtingSignalsRequest {
+    fn try_into_domain(self) -> GetLigtingSignalsRequest {
+        GetLigtingSignalsRequest {
             remo_token: self.remo_token,
-        })
+        }
     }
 }
 
-#[derive(Debug, Clone, thiserror::Error)]
-enum ParseGetLightingSignalsHttpRequestError {
-    // TODO: エラーを定義する
-}
-
-impl From<ParseGetLightingSignalsHttpRequestError> for ApiError {
-    fn from(e: ParseGetLightingSignalsHttpRequestError) -> Self {
-        Self::FailedToAdjustLights(format!("Failed to adjust lights: {}", e))
-    }
-}
-
-// TODO: レスポンスを定義する
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetLightingSignalsHttpResponseData {
     signals: Vec<Signal>,
@@ -60,7 +46,7 @@ pub async fn get_lighting_signals<S: RemoService + AtmosdictService>(
     State(state): State<AppState<S>>,
     Json(body): Json<GetLightingSignalsHttpRequestBody>,
 ) -> Result<ApiSuccess<GetLightingSignalsHttpResponseData>, ApiError> {
-    let domain_req = body.try_into_domain()?;
+    let domain_req = body.try_into_domain();
 
     state
         .service
