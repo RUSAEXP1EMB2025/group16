@@ -1,8 +1,23 @@
+//! これはポジティブ/ネガティブな単語を操作するライブラリである。
+
 use color_eyre::Result;
 use std::{collections::HashSet, fs::File, io::BufReader, path::PathBuf};
 
+/// ポジティブ/ネガティブな単語を操作する構造体
+/// ## 使い方
+/// ```
+/// let atmosdict = AtmosDict::new();
+///
+/// // 全ての単語を取得
+/// let all_words = atmosdict.get_all();
+///
+/// // ポジティブ/ネガティブに分けて単語を取得
+/// let (pos_words, neg_words) = atmosdict.get_pos_neg();
+///
+/// ```
 #[derive(Clone)]
 pub struct Atmosdict {
+    /// 辞書データファイルのパス
     dict_path: PathBuf,
 }
 
@@ -19,10 +34,12 @@ impl Atmosdict {
         Atmosdict::default()
     }
 
+    /// 全てのキーワードを取得
     pub fn get_all(&self) -> Result<Vec<String>> {
         todo!()
     }
 
+    /// キーワードをポジティブ/ネガティブに分けて取得
     pub fn get_pos_neg(&self) -> Result<(HashSet<String>, HashSet<String>)> {
         let file = File::open(self.dict_path.clone())?;
         let mut rdr = csv::Reader::from_reader(BufReader::new(file));

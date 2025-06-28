@@ -12,33 +12,25 @@ use super::{
 };
 
 #[derive(Clone)]
-pub struct Service<LR, KR>
+pub struct Service<RR, KR>
 where
-    LR: RemoRepository,
+    RR: RemoRepository,
     KR: AtmosdictRepository,
 {
-    lighting_repository: LR,
-    keywords_repository: KR,
+    remo_repository: RR,
+    atmosdict_repository: KR,
 }
 
-impl<LR, KR> Service<LR, KR>
+impl<RR, KR> Service<RR, KR>
 where
-    LR: RemoRepository,
+    RR: RemoRepository,
     KR: AtmosdictRepository,
 {
-    pub fn new(lighting_repository: LR, keywords_repository: KR) -> Self {
+    pub fn new(remo_repository: RR, atmosdict_repository: KR) -> Self {
         Self {
-            lighting_repository,
-            keywords_repository,
+            remo_repository,
+            atmosdict_repository,
         }
-    }
-
-    pub fn lighting_repository(&self) -> &LR {
-        &self.lighting_repository
-    }
-
-    pub fn keywords_repository(&self) -> &KR {
-        &self.keywords_repository
     }
 }
 
@@ -51,11 +43,11 @@ where
         &self,
         req: &GetLigtingSignalsRequest,
     ) -> Result<Vec<Signal>, GetLightingSignalsError> {
-        self.lighting_repository.get_lighting_signals(req).await
+        self.remo_repository.get_lighting_signals(req).await
     }
 
     async fn adjust_lighting(&self, req: &AdjustLigtingRequest) -> Result<(), AdjustLigtingError> {
-        self.lighting_repository.adjust_lighting(req).await
+        self.remo_repository.adjust_lighting(req).await
     }
 }
 
@@ -65,6 +57,6 @@ where
     KR: AtmosdictRepository,
 {
     async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError> {
-        self.keywords_repository.get_atmos_dict().await
+        self.atmosdict_repository.get_atmos_dict().await
     }
 }

@@ -7,7 +7,7 @@ use crate::domain::{
 };
 
 use atmos_freq::AtmosFreq;
-use color_eyre::{eyre, owo_colors::colors::xterm::AnakiwaBlue};
+use color_eyre::eyre;
 use remo_api::{
     apis::{configuration::Configuration, default_api::call_1_devices_get},
     models::Signal,

@@ -1,12 +1,11 @@
 use crate::AtmosFreq;
+use atmos_dict::Atmosdict;
+use dotenv::dotenv;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::{env, error::Error, str::SplitTerminator};
+use std::error::Error;
 use url::Url;
-use dotenv::dotenv;
-use atmos_dict::Atmosdict;
-
 
 #[derive(Debug, Deserialize)]
 struct YouTubeResponse {
@@ -51,7 +50,6 @@ impl YouTubeClient {
 
     /// YouTubeのURLからvideo IDを抽出する
     fn extract_video_id(&self, url: &Url) -> Result<String, Box<dyn Error>> {
-        
         match url.host_str() {
             Some("www.youtube.com") | Some("youtube.com") => {
                 // 通常のYouTubeURL: https://www.youtube.com/watch?v=VIDEO_ID
@@ -66,8 +64,8 @@ impl YouTubeClient {
             }
             Some("youtu.be") => {
                 // 短縮URL: https://youtu.be/VIDEO_ID
-                if let Some(path) = url.path_segments() {
-                    if let Some(video_id) = path.last() {
+                if let Some(mut path) = url.path_segments() {
+                    if let Some(video_id) = path.next_back() {
                         return Ok(video_id.to_string());
                     }
                 }
@@ -80,7 +78,7 @@ impl YouTubeClient {
     /// YouTube Data APIを使って動画情報を取得する
     async fn get_video_info(&self, video_id: &str) -> Result<VideoInfo, Box<dyn Error>> {
         // APIキーの検証
-        if  self.api_key.is_empty() {
+        if self.api_key.is_empty() {
             return Err("YouTube API key is not set. Please set YOUTUBE_API_KEY environment variable or provide a valid API key.".into());
         }
 
@@ -89,14 +87,22 @@ impl YouTubeClient {
             video_id, self.api_key
         );
 
-        println!("Making API request to: {}", url.replace(&self.api_key, "***"));
+        println!(
+            "Making API request to: {}",
+            url.replace(&self.api_key, "***")
+        );
 
         let response = self.client.get(&url).send().await?;
         let status = response.status();
-        
+
         if !status.is_success() {
-            let error_text = response.text().await.unwrap_or_else(|_| "Could not read response body".to_string());
-            return Err(format!("API request failed: {} - Response: {}", status, error_text).into());
+            let error_text = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Could not read response body".to_string());
+            return Err(
+                format!("API request failed: {} - Response: {}", status, error_text).into(),
+            );
         }
 
         let response_text = response.text().await?;
@@ -104,13 +110,13 @@ impl YouTubeClient {
 
         let youtube_response: YouTubeResponse = serde_json::from_str(&response_text)
             .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
-        
+
         if youtube_response.items.is_empty() {
             return Err("Video not found or video is private/deleted".into());
         }
 
         let snippet = &youtube_response.items[0].snippet;
-        
+
         Ok(VideoInfo {
             title: snippet.title.clone(),
             tags: snippet.tags.clone().unwrap_or_default(),
@@ -120,13 +126,13 @@ impl YouTubeClient {
     }
 
     /// URLから動画情報を取得する（wrapper関数）
-    async fn get_video_info_from_url(&self, url: &Url ) -> Result<VideoInfo, Box<dyn Error>> {
+    async fn get_video_info_from_url(&self, url: &Url) -> Result<VideoInfo, Box<dyn Error>> {
         let video_id = self.extract_video_id(url)?;
         self.get_video_info(&video_id).await
     }
 }
 
-fn coversion_category(id:i32) -> Option<&'static str> {
+fn coversion_category(id: i32) -> Option<&'static str> {
     match id {
         1 => Some("映画とアニメ"),
         2 => Some("自動車と乗り物"),
@@ -147,22 +153,21 @@ fn coversion_category(id:i32) -> Option<&'static str> {
     }
 }
 
-
 impl AtmosFreq {
-    pub async fn from_youtube(url: &Url,keywords: &Vec<String>) -> Self {
+    pub async fn from_youtube(url: &Url, keywords: &Vec<String>) -> Self {
         dotenv().ok();
         let api_key = std::env::var("YOUTUBE_API_KEY").unwrap();
         let client = YouTubeClient::new(api_key);
         let video_info = client.get_video_info_from_url(url).await.unwrap();
         let category = coversion_category(video_info.category_id.parse().unwrap()).unwrap();
-        
+
         let mut infos = Vec::<String>::new();
-            infos.push(video_info.title);
-            infos.push(video_info.description);
-            for tag in video_info.tags{
+        infos.push(video_info.title);
+        infos.push(video_info.description);
+        for tag in video_info.tags {
             infos.push(tag);
-            }
-            infos.push(category.to_string());
+        }
+        infos.push(category.to_string());
 
         let atmos_dict = Atmosdict::new();
         let (pos_dict, neg_dict) = atmos_dict.get_pos_neg().unwrap();
@@ -171,25 +176,24 @@ impl AtmosFreq {
         let mut neg_count = 0;
 
         for info in infos {
-            for pos_word in &pos_dict{
-                if info.contains(pos_word){
+            for pos_word in &pos_dict {
+                if info.contains(pos_word) {
                     pos_count += 1;
                     dbg!(pos_word);
-                    }
                 }
+            }
             for neg_word in &neg_dict {
-                if info.contains(neg_word){
+                if info.contains(neg_word) {
                     neg_count += 1;
                 }
-                }
-            }let total = pos_count + neg_count;
+            }
+        }
+        let total = pos_count + neg_count;
 
         let score = (pos_count as f64 / total as f64) * 100.0;
         AtmosFreq(score)
-
-        }
-        
     }
+}
 
 #[cfg(test)]
 mod test {
@@ -200,19 +204,35 @@ mod test {
     #[tokio::test]
     async fn test_generate_atmosfreq_from_youtube() {
         //ドラマ「笑ゥせぇるすまん」喪黒福造を演じるのは、秋山竜次(ロバート)！／7月18日(金)よりPrime Videoで独占配信
-        let atmosfreq = AtmosFreq::from_youtube(&Url::parse("https://youtu.be/E0n8zwIdwFw?si=xImXFFfjmrIn-Kjs").unwrap(),&Vec::new()).await;
+        let atmosfreq = AtmosFreq::from_youtube(
+            &Url::parse("https://youtu.be/E0n8zwIdwFw?si=xImXFFfjmrIn-Kjs").unwrap(),
+            &Vec::new(),
+        )
+        .await;
         dbg!(atmosfreq);
 
         //【ドジャースがリーグ最速で50勝到達！山本無双ピッチで7勝目、マンシー満塁HR含む2安打6打点、コンフォート2戦連発！】ドジャースvsロッキーズ 試合ハイライト MLB2025シーズン 6.26
-        let atmosfreq = AtmosFreq::from_youtube(&Url::parse("https://youtu.be/eA78BZt_alA?si=cSLWnG2sfXZq6t8x").unwrap(),&Vec::new()).await;
+        let atmosfreq = AtmosFreq::from_youtube(
+            &Url::parse("https://youtu.be/eA78BZt_alA?si=cSLWnG2sfXZq6t8x").unwrap(),
+            &Vec::new(),
+        )
+        .await;
         dbg!(atmosfreq);
 
         //『劇場版「無限城編」公開記念！「鬼滅の刃」全七夜特別放送』告知CM
-        let atmosfreq = AtmosFreq::from_youtube(&Url::parse("https://youtu.be/zn4vWW3MDEw?si=OpJY_MjBMpyxRMD8").unwrap(),&Vec::new()).await;
+        let atmosfreq = AtmosFreq::from_youtube(
+            &Url::parse("https://youtu.be/zn4vWW3MDEw?si=OpJY_MjBMpyxRMD8").unwrap(),
+            &Vec::new(),
+        )
+        .await;
         dbg!(atmosfreq);
 
         //『イカゲーム』シーズン3 最終ゲーム 予告編 - Netflix
-        let atmosfreq = AtmosFreq::from_youtube(&Url::parse("https://youtu.be/LTeOBlrHhhE?si=Fdumv-Hz588voZd1").unwrap(),&Vec::new()).await;
+        let atmosfreq = AtmosFreq::from_youtube(
+            &Url::parse("https://youtu.be/LTeOBlrHhhE?si=Fdumv-Hz588voZd1").unwrap(),
+            &Vec::new(),
+        )
+        .await;
         dbg!(atmosfreq);
     }
 }

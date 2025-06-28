@@ -1,6 +1,7 @@
 use crate::AtmosFreq;
 
 impl AtmosFreq {
+    /// Netflixから雰囲気指数を算出
     pub fn from_netflix(keywords: &Vec<String>) -> Self {
         todo!()
     }

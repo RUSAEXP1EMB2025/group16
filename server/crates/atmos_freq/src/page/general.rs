@@ -3,6 +3,7 @@ use atmos_dict::Atmosdict;
 use crate::AtmosFreq;
 
 impl AtmosFreq {
+    /// サイトから雰囲気指数を算出
     pub fn from_general(keywords: &Vec<String>) -> Self {
         let atmos_dict = Atmosdict::new();
         let (pos_dict, neg_dict) = atmos_dict.get_pos_neg().unwrap();

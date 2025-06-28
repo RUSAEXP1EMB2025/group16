@@ -1,9 +1,10 @@
+//! これはサイト情報から算出される雰囲気指数を取り扱うライブラリである。
 pub mod page;
 
 use derive_more::From;
 use url::Url;
 
-// 雰囲気指数 (-100.0 ~ 100.0)
+// 雰囲気指数 (0 ~ 100.0)
 #[derive(PartialEq, Debug, From)]
 pub struct AtmosFreq(f64);
 
