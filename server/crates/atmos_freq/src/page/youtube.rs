@@ -154,7 +154,7 @@ fn coversion_category(id: i32) -> Option<&'static str> {
 }
 
 impl AtmosFreq {
-    pub async fn from_youtube(url: &Url, keywords: &Vec<String>) -> Self {
+    pub async fn from_youtube(url: &Url) -> Self {
         dotenv().ok();
         let api_key = std::env::var("YOUTUBE_API_KEY").unwrap();
         let client = YouTubeClient::new(api_key);
@@ -206,7 +206,6 @@ mod test {
         //ドラマ「笑ゥせぇるすまん」喪黒福造を演じるのは、秋山竜次(ロバート)！／7月18日(金)よりPrime Videoで独占配信
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/E0n8zwIdwFw?si=xImXFFfjmrIn-Kjs").unwrap(),
-            &Vec::new(),
         )
         .await;
         dbg!(atmosfreq);
@@ -214,7 +213,6 @@ mod test {
         //【ドジャースがリーグ最速で50勝到達！山本無双ピッチで7勝目、マンシー満塁HR含む2安打6打点、コンフォート2戦連発！】ドジャースvsロッキーズ 試合ハイライト MLB2025シーズン 6.26
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/eA78BZt_alA?si=cSLWnG2sfXZq6t8x").unwrap(),
-            &Vec::new(),
         )
         .await;
         dbg!(atmosfreq);
@@ -222,7 +220,6 @@ mod test {
         //『劇場版「無限城編」公開記念！「鬼滅の刃」全七夜特別放送』告知CM
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/zn4vWW3MDEw?si=OpJY_MjBMpyxRMD8").unwrap(),
-            &Vec::new(),
         )
         .await;
         dbg!(atmosfreq);
@@ -230,7 +227,6 @@ mod test {
         //『イカゲーム』シーズン3 最終ゲーム 予告編 - Netflix
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/LTeOBlrHhhE?si=Fdumv-Hz588voZd1").unwrap(),
-            &Vec::new(),
         )
         .await;
         dbg!(atmosfreq);

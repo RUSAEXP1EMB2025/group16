@@ -9,6 +9,7 @@ use crate::{
     },
 };
 
+use atmos_freq::SiteInfo;
 use axum::{Json, extract::State, http::StatusCode};
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -18,22 +19,45 @@ use utoipa::ToSchema;
 pub struct AdjustLightingHttpRequestBody {
     pub remo_token: String,
     pub url: String,
-    pub texts: Vec<String>,
+    pub keywords: Vec<String>,
 }
 
 impl AdjustLightingHttpRequestBody {
     fn try_into_domain(self) -> Result<AdjustLigtingRequest, ParseAdjustLightingHttpRequestError> {
+        type Error = ParseAdjustLightingHttpRequestError;
+
+        let site_info = match self.url.as_str() {
+            url if url.contains("youtube") => {
+                let parsed_url = Url::parse(url).map_err(Error::InvalidUrlFormat)?;
+                SiteInfo::Youtube { url: parsed_url }
+            }
+            url if url.contains("netflix") => {
+                let title = self
+                    .keywords
+                    .into_iter()
+                    .next()
+                    .ok_or(Error::TitleNotFoundForNetflix)?;
+                SiteInfo::Netflix { title }
+            }
+            _ => SiteInfo::General {
+                keywords: self.keywords,
+            },
+        };
+
         Ok(AdjustLigtingRequest {
             remo_token: self.remo_token,
-            url: Url::parse(&self.url).unwrap(),
-            texts: self.texts,
+            site_info,
         })
     }
 }
 
 #[derive(Debug, Clone, thiserror::Error)]
 enum ParseAdjustLightingHttpRequestError {
-    // TODO: エラーを定義する
+    #[error("Url format is invalid")]
+    InvalidUrlFormat(url::ParseError),
+
+    #[error("Title not found for Netflix")]
+    TitleNotFoundForNetflix,
 }
 
 impl From<ParseAdjustLightingHttpRequestError> for ApiError {

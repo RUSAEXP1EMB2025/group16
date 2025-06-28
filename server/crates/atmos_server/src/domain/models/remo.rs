@@ -1,14 +1,12 @@
-use atmos_freq::AtmosFreq;
+use atmos_freq::{AtmosFreq, SiteInfo};
 use derive_more::From;
-use url::Url;
 
 use crate::inbound::http::api::ApiError;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AdjustLigtingRequest {
     pub remo_token: String,
-    pub url: Url,
-    pub texts: Vec<String>,
+    pub site_info: SiteInfo,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -58,7 +58,7 @@ impl Remo {
 impl RemoRepository for Remo {
     async fn adjust_lighting(&self, req: &AdjustLigtingRequest) -> Result<(), AdjustLigtingError> {
         let current_lighting_amount = self.get_lighting_amount(&req.remo_token).await.unwrap();
-        let atmosfreq = AtmosFreq::new(&req.url, &req.texts).await;
+        let atmosfreq = AtmosFreq::new(&req.site_info).await;
 
         let target_lighting_amount = TargetLightingAmount::new(atmosfreq, current_lighting_amount);
 
