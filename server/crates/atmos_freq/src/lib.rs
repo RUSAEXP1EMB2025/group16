@@ -1,6 +1,7 @@
 //! これはサイト情報から算出される雰囲気指数を取り扱うライブラリである。
 pub mod page;
 
+use atmos_dict::Atmosdict;
 use derive_more::From;
 use url::Url;
 
@@ -16,17 +17,26 @@ pub enum SiteInfo {
 }
 
 impl AtmosFreq {
-    pub async fn new(siteinfo: &SiteInfo) -> Self {
+    pub async fn new<A>(siteinfo: &SiteInfo, atmosdict: A) -> Self
+    where
+        A: AsRef<Atmosdict>,
+    {
+        let atmosdict = atmosdict.as_ref();
+
         match siteinfo {
-            SiteInfo::Youtube { url } => Self::from_youtube(url).await,
+            SiteInfo::Youtube { url } => Self::from_youtube(url, atmosdict).await,
             SiteInfo::Netflix { title } => Self::from_netflix(title),
-            SiteInfo::General { keywords } => Self::from_general(keywords),
+            SiteInfo::General { keywords } => Self::from_general(keywords, atmosdict).await,
         }
     }
 }
 
 #[cfg(test)]
 mod test {
+    use atmos_config::Config;
+    use atmos_dict::Atmosdict;
+    use std::sync::Arc;
+
     use super::AtmosFreq;
     use crate::SiteInfo;
 
@@ -38,7 +48,12 @@ mod test {
 
         let keywords = keywords.into_iter().map(String::from).collect();
 
-        let atmosfreq = AtmosFreq::new(&SiteInfo::General { keywords }).await;
+        let config = Config::from_env().unwrap();
+        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
+        let atmosdict = Arc::new(atmosdict);
+
+        let atmosfreq =
+            AtmosFreq::new(&SiteInfo::General { keywords }, Arc::clone(&atmosdict)).await;
         assert_eq!(atmosfreq, AtmosFreq::from(expect_result))
     }
 }

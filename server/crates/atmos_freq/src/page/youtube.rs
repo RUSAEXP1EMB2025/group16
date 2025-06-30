@@ -154,7 +154,7 @@ fn coversion_category(id: i32) -> Option<&'static str> {
 }
 
 impl AtmosFreq {
-    pub async fn from_youtube(url: &Url) -> Self {
+    pub async fn from_youtube(url: &Url, atmosdict: &Atmosdict) -> Self {
         dotenv().ok();
         let api_key = std::env::var("YOUTUBE_API_KEY").unwrap();
         let client = YouTubeClient::new(api_key);
@@ -169,8 +169,7 @@ impl AtmosFreq {
         }
         infos.push(category.to_string());
 
-        let atmos_dict = Atmosdict::new();
-        let (pos_dict, neg_dict) = atmos_dict.get_pos_neg().unwrap();
+        let (pos_dict, neg_dict) = atmosdict.get_pos_neg().await.unwrap();
 
         let mut pos_count = 0;
         let mut neg_count = 0;
@@ -197,15 +196,21 @@ impl AtmosFreq {
 
 #[cfg(test)]
 mod test {
+    use atmos_config::Config;
+    use atmos_dict::Atmosdict;
     use url::Url;
 
     use crate::AtmosFreq;
 
     #[tokio::test]
     async fn test_generate_atmosfreq_from_youtube() {
+        let config = Config::from_env().unwrap();
+        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
+
         //ドラマ「笑ゥせぇるすまん」喪黒福造を演じるのは、秋山竜次(ロバート)！／7月18日(金)よりPrime Videoで独占配信
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/E0n8zwIdwFw?si=xImXFFfjmrIn-Kjs").unwrap(),
+            &atmosdict,
         )
         .await;
         dbg!(atmosfreq);
@@ -213,6 +218,7 @@ mod test {
         //【ドジャースがリーグ最速で50勝到達！山本無双ピッチで7勝目、マンシー満塁HR含む2安打6打点、コンフォート2戦連発！】ドジャースvsロッキーズ 試合ハイライト MLB2025シーズン 6.26
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/eA78BZt_alA?si=cSLWnG2sfXZq6t8x").unwrap(),
+            &atmosdict,
         )
         .await;
         dbg!(atmosfreq);
@@ -220,6 +226,7 @@ mod test {
         //『劇場版「無限城編」公開記念！「鬼滅の刃」全七夜特別放送』告知CM
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/zn4vWW3MDEw?si=OpJY_MjBMpyxRMD8").unwrap(),
+            &atmosdict,
         )
         .await;
         dbg!(atmosfreq);
@@ -227,6 +234,7 @@ mod test {
         //『イカゲーム』シーズン3 最終ゲーム 予告編 - Netflix
         let atmosfreq = AtmosFreq::from_youtube(
             &Url::parse("https://youtu.be/LTeOBlrHhhE?si=Fdumv-Hz588voZd1").unwrap(),
+            &atmosdict,
         )
         .await;
         dbg!(atmosfreq);

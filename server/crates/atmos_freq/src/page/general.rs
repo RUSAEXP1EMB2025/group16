@@ -4,9 +4,8 @@ use crate::AtmosFreq;
 
 impl AtmosFreq {
     /// サイトから雰囲気指数を算出
-    pub fn from_general(keywords: &Vec<String>) -> Self {
-        let atmos_dict = Atmosdict::new();
-        let (pos_dict, neg_dict) = atmos_dict.get_pos_neg().unwrap();
+    pub async fn from_general(keywords: &Vec<String>, atmosdict: &Atmosdict) -> Self {
+        let (pos_dict, neg_dict) = atmosdict.get_pos_neg().await.unwrap();
 
         let mut pos_count = 0;
         let mut neg_count = 0;
@@ -29,43 +28,47 @@ impl AtmosFreq {
 #[cfg(test)]
 mod test {
     use crate::AtmosFreq;
+    use atmos_dict::Atmosdict;
 
     fn sample_words(s: Vec<&str>) -> Vec<String> {
         s.into_iter().map(String::from).collect()
     }
 
-    #[test]
-    fn test_generate_atmosfreq_from_general() {
+    #[tokio::test]
+    async fn test_generate_atmosfreq_from_general() {
+        let config = atmos_config::Config::from_env().unwrap();
+        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
+
         let words = sample_words(vec!["ホラー"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
 
         let words = sample_words(vec!["ホラー", "ホラー"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
 
         let words = sample_words(vec!["ホラー", "感謝"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
 
         let words = sample_words(vec!["ホラー", "感謝", "感謝"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
 
         let words = sample_words(vec!["感謝"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
 
         let words = sample_words(vec!["感謝", "感謝"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
 
         let words = sample_words(vec!["a", "感謝"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
 
         let words = sample_words(vec!["a", "ホラー"]);
-        let atomos_freq = AtmosFreq::from_general(&words);
+        let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
         dbg!(atomos_freq);
     }
 }

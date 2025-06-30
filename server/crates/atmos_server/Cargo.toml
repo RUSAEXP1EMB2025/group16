@@ -22,3 +22,4 @@ url.workspace = true
 dotenvy = "0.15.7"
 atmos_freq = { path = "../atmos_freq" }
 atmos_dict = { path = "../atmos_dict" }
+atmos_config = { path = "../atmos_config" }

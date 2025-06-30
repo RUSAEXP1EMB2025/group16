@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::domain::{
     models::remo::{
         AdjustLigtingError, AdjustLigtingRequest, CurrentLightingAmount, GetLightingSignalsError,
@@ -6,6 +8,7 @@ use crate::domain::{
     ports::RemoRepository,
 };
 
+use atmos_dict::Atmosdict;
 use atmos_freq::AtmosFreq;
 use color_eyre::eyre::{self, ContextCompat};
 use remo_api::{
@@ -14,9 +17,15 @@ use remo_api::{
 };
 
 #[derive(Clone)]
-pub struct Remo;
+pub struct Remo {
+    atmosdict: Arc<Atmosdict>,
+}
 
 impl Remo {
+    pub fn new(atmosdict: Arc<Atmosdict>) -> Self {
+        Remo { atmosdict }
+    }
+
     fn config(token: &str) -> Configuration {
         Configuration {
             oauth_access_token: Some(token.to_owned()),
@@ -68,7 +77,7 @@ impl RemoRepository for Remo {
             .await
             .map_err(AdjustLigtingError::GetLightingAmount)?;
 
-        let atmosfreq = AtmosFreq::new(&req.site_info).await;
+        let atmosfreq = AtmosFreq::new(&req.site_info, Arc::clone(&self.atmosdict)).await;
         let target_lighting_amount = TargetLightingAmount::new(atmosfreq, current_lighting_amount);
 
         self.apply_lighting(&req.remo_token, target_lighting_amount)
@@ -82,8 +91,7 @@ impl RemoRepository for Remo {
         &self,
         req: &GetLigtingSignalsRequest,
     ) -> Result<Vec<Signal>, GetLightingSignalsError> {
-        let remo = Remo;
-        let ligitng_signals = remo
+        let ligitng_signals = self
             .get_lighting_signals(&req.remo_token)
             .await
             .map_err(GetLightingSignalsError::GetLightingSignals)?;
@@ -93,16 +101,24 @@ impl RemoRepository for Remo {
 
 #[cfg(test)]
 mod test {
+    use atmos_dict::Atmosdict;
+    use std::{env, sync::Arc};
+
     use super::Remo;
     use crate::domain::models::remo::TargetLightingAmount;
 
-    use std::env;
+    async fn atmosdict() -> Arc<Atmosdict> {
+        let config = atmos_config::Config::from_env().unwrap();
+        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
+        Arc::new(atmosdict)
+    }
 
     #[tokio::test]
     async fn test_get_lighting_signals() {
         dotenvy::dotenv().unwrap();
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
-        let remo = Remo;
+        let atmosdict = atmosdict().await;
+        let remo = Remo { atmosdict };
         assert!(remo.get_lighting_signals(&token).await.is_ok());
     }
 
@@ -110,7 +126,8 @@ mod test {
     async fn test_get_lighting_amount() {
         dotenvy::dotenv().unwrap();
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
-        let remo = Remo;
+        let atmosdict = atmosdict().await;
+        let remo = Remo { atmosdict };
         let amount = remo.get_lighting_amount(&token).await;
         dbg!(&amount);
         assert!(amount.is_ok());
@@ -120,7 +137,8 @@ mod test {
     async fn test_apply_lighting() {
         dotenvy::dotenv().unwrap();
         let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
-        let remo = Remo;
+        let atmosdict = atmosdict().await;
+        let remo = Remo { atmosdict };
         // TODO: 目標の明るさ値を調整する
         let target_lighting_amount = TargetLightingAmount::from(2.0);
         assert!(
