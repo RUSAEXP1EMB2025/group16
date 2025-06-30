@@ -24,6 +24,9 @@ includes:
     dir: ./server
     taskfile: ./taskfile/Taskfile.server.yml
 
+  db:
+    taskfile: ./taskfile/Taskfile.db.yml
+
 tasks:
   default:
     desc: List all tasks

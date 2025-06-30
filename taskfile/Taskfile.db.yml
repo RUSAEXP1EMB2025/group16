@@ -1,0 +1,80 @@
+version: '3'
+
+env:
+  DATABASE_URL: "sqlite:./server/db/atmos.db"
+
+tasks:
+  create:
+    desc: "データベースを作成"
+    dir: server
+    cmds:
+      - mkdir -p db
+      - sqlx database create
+    status:
+      - test -f db/atmos.db
+
+  drop:
+    desc: "データベースを削除"
+    dir: server
+    cmds:
+      - rm -f db/atmos.db
+    preconditions:
+      - test -f db/atmos.db
+
+  reset:
+    desc: "データベースをリセット（削除後再作成）"
+    deps: [drop, create]
+
+  migrate:
+    desc: "マイグレーションを実行"
+    dir: server
+    cmds:
+      - sqlx migrate run
+    preconditions:
+      - test -f db/atmos.db
+      - test -d migrations
+
+  migrate:add:
+    desc: "新しいマイグレーションファイルを作成"
+    dir: server
+    cmds:
+      - sqlx migrate add {{.CLI_ARGS}}
+    preconditions:
+      - sh: "[ -n '{{.CLI_ARGS}}' ]"
+        msg: "マイグレーション名を指定してください: task db:migrate:add -- migration_name"
+
+  migrate:revert:
+    desc: "最新のマイグレーションを戻す"
+    dir: server
+    cmds:
+      - sqlx migrate revert
+    preconditions:
+      - test -f db/atmos.db
+      - test -d migrations
+
+  migrate:info:
+    desc: "マイグレーション状況を確認"
+    dir: server
+    cmds:
+      - sqlx migrate info
+    preconditions:
+      - test -f db/atmos.db
+
+  check:
+    desc: "データベース接続とスキーマをチェック"
+    dir: server
+    cmds:
+      - sqlite3 db/atmos.db "SELECT 'Database connection OK';"
+      - sqlite3 db/atmos.db ".schema"
+
+  setup:
+    desc: "データベースの初期セットアップ（作成+マイグレーション）"
+    deps: [create, migrate]
+
+  prepare:
+    desc: "sqlx-dataを準備（オフラインコンパイル用）"
+    dir: server
+    cmds:
+      - cargo sqlx prepare
+    preconditions:
+      - test -f db/atmos.db
