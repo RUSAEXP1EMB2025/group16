@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use axum::{extract::State, http::StatusCode};
 use serde::Serialize;
 
@@ -11,25 +13,27 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetAtmosdictHttpResponseData {
-    wordlist: Vec<String>,
+    atmoswords: HashSet<String>,
 }
 
 #[utoipa::path(
     get,
-    path = "/atmosdict",
-    summary = "Get Atmosdict",
+    path = "/atmoswords",
+    summary = "Get Atmoswords",
     description = "サイトから取得するべきキーワード辞書を取得",
     responses(
         (status = 200, description = "Success"),
     ),
 )]
-pub async fn get_atmosdict<S: RemoService + AtmosdictService>(
+pub async fn get_atmoswords<S: RemoService + AtmosdictService>(
     State(state): State<AppState<S>>,
 ) -> Result<ApiSuccess<GetAtmosdictHttpResponseData>, ApiError> {
     state
         .service
-        .get_atmos_dict()
+        .get_all_atmoswords()
         .await
         .map_err(ApiError::from)
-        .map(|wordlist| ApiSuccess::new(StatusCode::OK, GetAtmosdictHttpResponseData { wordlist }))
+        .map(|atmoswords| {
+            ApiSuccess::new(StatusCode::OK, GetAtmosdictHttpResponseData { atmoswords })
+        })
 }

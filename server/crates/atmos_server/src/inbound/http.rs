@@ -54,7 +54,7 @@ impl HttpServer {
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
             .route("/lighting", post(routes::adjust_lighting))
             .route("/lighting", get(routes::get_lighting_signals))
-            .route("/atmosdict", get(routes::get_atmosdict))
+            .route("/atmosdict", get(routes::get_atmoswords))
             .layer(trace_layer)
             .with_state(state);
 
@@ -87,6 +87,6 @@ impl HttpServer {
 #[openapi(paths(
     routes::adjust_lighting::adjust_lighting,
     routes::get_lighting_signals::get_lighting_signals,
-    routes::get_atmosdict::get_atmosdict
+    routes::get_atmoswords::get_atmoswords
 ))]
 struct ApiDoc;

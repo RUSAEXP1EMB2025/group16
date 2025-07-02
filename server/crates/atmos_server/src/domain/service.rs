@@ -1,12 +1,11 @@
+use std::collections::HashSet;
+
+use atmos_dict::error::AtmosdictError;
 use remo_api::models::Signal;
 
 use super::{
-    models::{
-        atmosdict::GetAtmosdictError,
-        remo::{
-            AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError,
-            GetLigtingSignalsRequest,
-        },
+    models::remo::{
+        AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError, GetLigtingSignalsRequest,
     },
     ports::{AtmosdictRepository, AtmosdictService, RemoRepository, RemoService},
 };
@@ -56,7 +55,13 @@ where
     LR: RemoRepository,
     KR: AtmosdictRepository,
 {
-    async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError> {
-        self.atmosdict_repository.get_atmos_dict().await
+    async fn get_all_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError> {
+        self.atmosdict_repository.get_all_atmoswords().await
+    }
+
+    async fn get_pos_neg_atmoswords(
+        &self,
+    ) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError> {
+        self.atmosdict_repository.get_pos_neg_atmoswords().await
     }
 }

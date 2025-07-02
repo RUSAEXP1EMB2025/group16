@@ -1,10 +1,10 @@
+use std::collections::HashSet;
+
+use atmos_dict::{Atmosdict, error::AtmosdictError};
 use remo_api::models::Signal;
 
-use super::models::{
-    atmosdict::GetAtmosdictError,
-    remo::{
-        AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError, GetLigtingSignalsRequest,
-    },
+use super::models::remo::{
+    AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError, GetLigtingSignalsRequest,
 };
 
 #[trait_variant::make(Send)]
@@ -19,7 +19,10 @@ pub trait RemoRepository: Send + Sync + Clone + 'static {
 
 #[trait_variant::make(Send)]
 pub trait AtmosdictRepository: Send + Sync + Clone + 'static {
-    async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError>;
+    async fn get_all_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
+    async fn get_pos_neg_atmoswords(
+        &self,
+    ) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError>;
 }
 
 #[trait_variant::make(Send)]
@@ -34,5 +37,8 @@ pub trait RemoService {
 
 #[trait_variant::make(Send)]
 pub trait AtmosdictService: Send + Sync + Clone + 'static {
-    async fn get_atmos_dict(&self) -> Result<Vec<String>, GetAtmosdictError>;
+    async fn get_all_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
+    async fn get_pos_neg_atmoswords(
+        &self,
+    ) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError>;
 }

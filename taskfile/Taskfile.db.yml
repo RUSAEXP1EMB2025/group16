@@ -1,0 +1,65 @@
+version: '3'
+
+env:
+  DB_PATH: "db/data/atmos.db"
+  DB_CONTAINER: "atmos_db"
+
+tasks:
+  db:up:
+    desc: "データベースを起動"
+    cmd: docker compose up -d {{.DB_CONTAINER}}
+
+  db:create:
+    desc: "データベースを作成"
+    cmds:
+      - docker exec {{.DB_CONTAINER}} sqlx database create
+
+  db:drop:
+    desc: "データベースを削除"
+    cmds:
+      - docker exec {{.DB_CONTAINER}} sqlx database drop
+
+  migrate:
+    desc: "マイグレーションを実行"
+    cmds:
+      - cd db/migrations && docker exec {{.DB_CONTAINER}} sqlx migrate run 
+
+  migrate:add:
+    desc: "新しいマイグレーションファイルを作成"
+    cmds:
+      - docker exec {{.DB_CONTAINER}} sqlx migrate add --source /workspace/server/migrations {{.CLI_ARGS}}
+    preconditions:
+      - sh: "[ -n '{{.CLI_ARGS}}' ]"
+        msg: "マイグレーション名を指定してください: task db:migrate:add -- migration_name"
+
+  migrate:revert:
+    desc: "最新のマイグレーションを戻す"
+    cmds:
+      - docker exec {{.DB_CONTAINER}} sqlx migrate revert --source /workspace/server/migrations
+    preconditions:
+      - docker exec {{.DB_CONTAINER}} test -f /workspace/{{.DB_PATH}}
+      - docker exec {{.DB_CONTAINER}} test -d /workspace/server/migrations
+
+  migrate:info:
+    desc: "マイグレーション状況を確認"
+    cmds:
+      - docker exec {{.DB_CONTAINER}} sqlx migrate info --source /workspace/server/migrations
+    preconditions:
+      - docker exec {{.DB_CONTAINER}} test -f /workspace/{{.DB_PATH}} 
+
+  check:
+    desc: "データベース接続とスキーマをチェック"
+    cmds:
+      - docker exec {{.DB_CONTAINER}} sqlite3 /workspace/{{.DB_PATH}} "SELECT 'Database connection OK';"
+      - docker exec {{.DB_CONTAINER}} sqlite3 /workspace/{{.DB_PATH}} ".schema"
+
+  setup:
+    desc: "データベースの初期セットアップ（作成+マイグレーション）"
+    deps: [create, migrate]
+
+  prepare:
+    desc: "sqlx-dataを準備（オフラインコンパイル用）"
+    cmds:
+      - docker exec {{.DB_CONTAINER}} sh -c "cd /workspace/server && cargo sqlx prepare"
+    preconditions:
+      - docker exec {{.DB_CONTAINER}} test -f /workspace/{{.DB_PATH}} 

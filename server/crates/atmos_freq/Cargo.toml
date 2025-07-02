@@ -9,8 +9,8 @@ scraper = "0.23.1"
 omdb = "0.3.2"
 url.workspace = true
 derive_more = { workspace = true, features = ["from"] }
-atmos_dict = { path = "../atmos_dict" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.0", features = ["full"] }
-dotenv = "0.15"
+atmos_dict = { path = "../atmos_dict" }
+atmos_config = { path = "../atmos_config" }
