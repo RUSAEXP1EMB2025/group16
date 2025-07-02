@@ -1,6 +1,6 @@
 use crate::AtmosFreq;
+use atmos_config::Config;
 use atmos_dict::Atmosdict;
-use dotenv::dotenv;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -155,9 +155,8 @@ fn coversion_category(id: i32) -> Option<&'static str> {
 
 impl AtmosFreq {
     pub async fn from_youtube(url: &Url, atmosdict: &Atmosdict) -> Self {
-        dotenv().ok();
-        let api_key = std::env::var("YOUTUBE_API_KEY").unwrap();
-        let client = YouTubeClient::new(api_key);
+        let config = Config::from_env();
+        let client = YouTubeClient::new(config.youtube_api_key);
         let video_info = client.get_video_info_from_url(url).await.unwrap();
         let category = coversion_category(video_info.category_id.parse().unwrap()).unwrap();
 
@@ -204,8 +203,8 @@ mod test {
 
     #[tokio::test]
     async fn test_generate_atmosfreq_from_youtube() {
-        let config = Config::from_env().unwrap();
-        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
+        let config = Config::from_env();
+        let atmosdict = Atmosdict::new(&config.database_path).await.unwrap();
 
         //ドラマ「笑ゥせぇるすまん」喪黒福造を演じるのは、秋山竜次(ロバート)！／7月18日(金)よりPrime Videoで独占配信
         let atmosfreq = AtmosFreq::from_youtube(

@@ -73,6 +73,7 @@ name = "atmos_config"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
+ "dotenvy",
 ]
 
 [[package]]
@@ -92,7 +93,6 @@ dependencies = [
  "atmos_config",
  "atmos_dict",
  "derive_more 2.0.1",
- "dotenv",
  "reqwest",
  "scraper",
  "serde",
@@ -111,7 +111,6 @@ dependencies = [
  "axum",
  "color-eyre",
  "derive_more 2.0.1",
- "dotenvy",
  "remo_api",
  "serde",
  "thiserror",
@@ -572,12 +571,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[package]]
-name = "dotenv"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "dotenvy"
@@ -2393,6 +2386,8 @@ dependencies = [
  "sha2",
  "smallvec",
  "thiserror",
+ "tokio",
+ "tokio-stream",
  "tracing",
  "url",
 ]
@@ -2431,6 +2426,7 @@ dependencies = [
  "sqlx-postgres",
  "sqlx-sqlite",
  "syn",
+ "tokio",
  "url",
 ]
 
@@ -2808,6 +2804,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e727b36a1a0e8b74c376ac2211e40c2c8af09fb4013c60d910495810f008e9b"
 dependencies = [
  "rustls",
+ "tokio",
+]
+
+[[package]]
+name = "tokio-stream"
+version = "0.1.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eca58d7bba4a75707817a2c44174253f9236b2d5fbd055602e9d5c07c139a047"
+dependencies = [
+ "futures-core",
+ "pin-project-lite",
  "tokio",
 ]
 

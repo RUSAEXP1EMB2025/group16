@@ -101,48 +101,49 @@ impl RemoRepository for Remo {
 
 #[cfg(test)]
 mod test {
+    use atmos_config::Config;
     use atmos_dict::Atmosdict;
-    use std::{env, sync::Arc};
+    use std::sync::Arc;
 
     use super::Remo;
     use crate::domain::models::remo::TargetLightingAmount;
 
     async fn atmosdict() -> Arc<Atmosdict> {
-        let config = atmos_config::Config::from_env().unwrap();
-        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
+        let database_path = Config::from_env().database_path;
+        let atmosdict = Atmosdict::new(&database_path).await.unwrap();
         Arc::new(atmosdict)
     }
 
     #[tokio::test]
     async fn test_get_lighting_signals() {
-        dotenvy::dotenv().unwrap();
-        let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
-        let atmosdict = atmosdict().await;
-        let remo = Remo { atmosdict };
-        assert!(remo.get_lighting_signals(&token).await.is_ok());
+        let remo_token = Config::from_env().remo_token.unwrap();
+        let remo = Remo {
+            atmosdict: atmosdict().await,
+        };
+        assert!(remo.get_lighting_signals(&remo_token).await.is_ok());
     }
 
     #[tokio::test]
     async fn test_get_lighting_amount() {
-        dotenvy::dotenv().unwrap();
-        let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
-        let atmosdict = atmosdict().await;
-        let remo = Remo { atmosdict };
-        let amount = remo.get_lighting_amount(&token).await;
+        let remo_token = Config::from_env().remo_token.unwrap();
+        let remo = Remo {
+            atmosdict: atmosdict().await,
+        };
+        let amount = remo.get_lighting_amount(&remo_token).await;
         dbg!(&amount);
         assert!(amount.is_ok());
     }
 
     #[tokio::test]
     async fn test_apply_lighting() {
-        dotenvy::dotenv().unwrap();
-        let token = env::var("REMO_TOKEN").expect("TOKEN Not found");
-        let atmosdict = atmosdict().await;
-        let remo = Remo { atmosdict };
+        let remo_token = Config::from_env().remo_token.unwrap();
+        let remo = Remo {
+            atmosdict: atmosdict().await,
+        };
         // TODO: 目標の明るさ値を調整する
         let target_lighting_amount = TargetLightingAmount::from(2.0);
         assert!(
-            remo.apply_lighting(&token, target_lighting_amount)
+            remo.apply_lighting(&remo_token, target_lighting_amount)
                 .await
                 .is_ok()
         )

@@ -17,6 +17,7 @@ pub enum SiteInfo {
 }
 
 impl AtmosFreq {
+    // &AtmosdictとArc<Atmosdict>の両方を受け取れるように、AsRefで取得する
     pub async fn new<A>(siteinfo: &SiteInfo, atmosdict: A) -> Self
     where
         A: AsRef<Atmosdict>,
@@ -35,7 +36,6 @@ impl AtmosFreq {
 mod test {
     use atmos_config::Config;
     use atmos_dict::Atmosdict;
-    use std::sync::Arc;
 
     use super::AtmosFreq;
     use crate::SiteInfo;
@@ -48,12 +48,10 @@ mod test {
 
         let keywords = keywords.into_iter().map(String::from).collect();
 
-        let config = Config::from_env().unwrap();
-        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
-        let atmosdict = Arc::new(atmosdict);
+        let config = Config::from_env();
+        let atmosdict = Atmosdict::new(&config.database_path).await.unwrap();
 
-        let atmosfreq =
-            AtmosFreq::new(&SiteInfo::General { keywords }, Arc::clone(&atmosdict)).await;
+        let atmosfreq = AtmosFreq::new(&SiteInfo::General { keywords }, &atmosdict).await;
         assert_eq!(atmosfreq, AtmosFreq::from(expect_result))
     }
 }

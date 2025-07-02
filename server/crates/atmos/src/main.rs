@@ -11,7 +11,8 @@ use tracing_subscriber::{layer::SubscriberExt as _, util::SubscriberInitExt as _
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
-    let config = atmos_config::Config::from_env().unwrap();
+    let config = atmos_config::Config::from_env();
+
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer().pretty())
         .init();
@@ -20,7 +21,7 @@ async fn main() -> eyre::Result<()> {
         port: config.server_port,
     };
 
-    let atmosdict = Atmosdict::new(&config.database_url).await?;
+    let atmosdict = Atmosdict::new(&config.database_path).await?;
     let atmosdict = Arc::new(atmosdict);
     let remo = Remo::new(Arc::clone(&atmosdict));
 

@@ -8,13 +8,25 @@ services:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     environment:
       BACKEND_PORT: ${BACKEND_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+      NETFLIX_API_KEY: ${NETFLIX_API_KEY}
+      REMO_TOKEN: ${REMO_TOKEN}
+    depends_on:
+      - atmos_db
+    volumes:
+      - ./db:/workspace/db
   atmos_db:
     container_name: atmos_db
-    image: nouchka/sqlite3:latest
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - ${DB_PORT}:${DB_PORT}
     volumes:
-      - ./server/db:/var/lib/sqlite
+      - ./db/data:/db
     environment:
-      SQLITE_DATABASE: atmos.db
+      DATABASE_URL: "sqlite:atmos.db"
   atmos_client:
     container_name: atmos_client
     build:

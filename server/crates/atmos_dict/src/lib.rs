@@ -69,7 +69,7 @@ use std::{collections::HashSet, str::FromStr as _};
 //     }
 // }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Atmosdict {
     pool: SqlitePool,
 }

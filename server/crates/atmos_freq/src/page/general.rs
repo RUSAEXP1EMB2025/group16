@@ -36,8 +36,8 @@ mod test {
 
     #[tokio::test]
     async fn test_generate_atmosfreq_from_general() {
-        let config = atmos_config::Config::from_env().unwrap();
-        let atmosdict = Atmosdict::new(&config.database_url).await.unwrap();
+        let config = atmos_config::Config::from_env();
+        let atmosdict = Atmosdict::new(&config.database_path).await.unwrap();
 
         let words = sample_words(vec!["ホラー"]);
         let atomos_freq = AtmosFreq::from_general(&words, &atmosdict).await;
