@@ -1,10 +1,11 @@
 use std::collections::HashSet;
 
-use atmos_dict::{Atmosdict, error::AtmosdictError};
+use atmos_dict::error::AtmosdictError;
 use remo_api::models::Signal;
 
 use super::models::remo::{
     AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError, GetLigtingSignalsRequest,
+    LightingSignals,
 };
 
 #[trait_variant::make(Send)]
@@ -12,7 +13,7 @@ pub trait RemoRepository: Send + Sync + Clone + 'static {
     async fn get_lighting_signals(
         &self,
         req: &GetLigtingSignalsRequest,
-    ) -> Result<Vec<Signal>, GetLightingSignalsError>;
+    ) -> Result<LightingSignals, GetLightingSignalsError>;
 
     async fn adjust_lighting(&self, req: &AdjustLigtingRequest) -> Result<(), AdjustLigtingError>;
 }
@@ -30,7 +31,7 @@ pub trait RemoService {
     async fn get_lighting_signals(
         &self,
         req: &GetLigtingSignalsRequest,
-    ) -> Result<Vec<Signal>, GetLightingSignalsError>;
+    ) -> Result<LightingSignals, GetLightingSignalsError>;
 
     async fn adjust_lighting(&self, req: &AdjustLigtingRequest) -> Result<(), AdjustLigtingError>;
 }

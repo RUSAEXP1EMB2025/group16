@@ -1,11 +1,10 @@
 use axum::{Json, extract::State, http::StatusCode};
-use remo_api::models::Signal;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::{
     domain::{
-        models::remo::GetLigtingSignalsRequest,
+        models::remo::{GetLigtingSignalsRequest, LightingSignals},
         ports::{AtmosdictService, RemoService},
     },
     inbound::http::{
@@ -29,7 +28,7 @@ impl GetLightingSignalsHttpRequestBody {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetLightingSignalsHttpResponseData {
-    signals: Vec<Signal>,
+    signals: LightingSignals,
 }
 
 #[utoipa::path(

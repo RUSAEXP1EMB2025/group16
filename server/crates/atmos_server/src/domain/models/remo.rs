@@ -1,6 +1,9 @@
 use atmos_freq::{AtmosFreq, SiteInfo};
 use color_eyre::eyre;
 use derive_more::From;
+use remo_api::models::{ApplianceResponseSignalsInner, Signal};
+use serde::Serialize;
+use utoipa::ToSchema;
 
 use crate::inbound::http::api::ApiError;
 
@@ -41,45 +44,63 @@ impl From<AdjustLigtingError> for ApiError {
     }
 }
 
-/// 現在の部屋の明るさ
-#[derive(PartialEq, Debug, From)]
-pub struct CurrentLightingAmount(f32);
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct LightingSignals {
+    pub on: Signal,
+    pub off: Signal,
+    pub up: Signal,
+    pub down: Signal,
+}
 
-/// 明るさの目標値
-#[derive(PartialEq, Debug, From)]
-pub struct TargetLightingAmount(f64);
+impl TryFrom<Vec<Signal>> for LightingSignals {
+    type Error = eyre::Report;
 
-impl TargetLightingAmount {
-    /// 雰囲気指数から部屋の明るさを考慮して目標の明るさを算出する
-    ///
-    /// * `atmosfreq`: 雰囲気指数
-    /// * `current_lighting_amount`: 現在の部屋の明るさ
-    pub fn new(atmosfreq: AtmosFreq, current_lighting_amount: CurrentLightingAmount) -> Self {
-        // TODO:  雰囲気指数と現在の明るさから，新しい明るさの目標値を計算する。
-        let amount = todo!();
-        CurrentLightingAmount(amount);
+    fn try_from(signals: Vec<Signal>) -> Result<Self, Self::Error> {
+        let find_signal = |name: &str| -> Result<Signal, eyre::Report> {
+            signals
+                .iter()
+                .find(|s| s.name.as_deref() == Some(name))
+                .cloned()
+                .ok_or_else(|| eyre::eyre!("Signal '{}' not found", name))
+        };
+
+        Ok(LightingSignals {
+            on: find_signal("on")?,
+            off: find_signal("off")?,
+            up: find_signal("up")?,
+            down: find_signal("down")?,
+        })
+    }
+}
+
+pub struct SendLightingSignalRequest {
+    pub amount: i32,
+    pub increace: bool,
+}
+
+impl SendLightingSignalRequest {
+    pub fn new(current_lighting_amount: f32, atmosfreq: &AtmosFreq) -> Self {
+        todo!()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::{CurrentLightingAmount, TargetLightingAmount};
     use atmos_freq::AtmosFreq;
+
+    use crate::domain::models::remo::SendLightingSignalRequest;
 
     #[test]
     fn test_calc_target_lighting_amount() {
         // TODO: 雰囲気指数の値を調整する
         let atmosfreq = AtmosFreq::from(50.0);
         // TODO: 現在の明るさ値を調整する
-        let current_lighting_amount = CurrentLightingAmount::from(50.0);
+        let current_lighting_amount = 50.0;
 
-        // TODO: 計算結果の値を調整する
-        let expect_result = 0.0;
+        let send_lighting_signal_request =
+            SendLightingSignalRequest::new(current_lighting_amount, &atmosfreq);
 
-        let target_lightint_amount = TargetLightingAmount::new(atmosfreq, current_lighting_amount);
-        assert_eq!(
-            target_lightint_amount,
-            TargetLightingAmount::from(expect_result)
-        );
+        // TODO: 結果予想の値を調整する
+        assert_eq!(send_lighting_signal_request.amount, 0);
     }
 }
