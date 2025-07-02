@@ -12,8 +12,8 @@ use atmos_dict::Atmosdict;
 use atmos_freq::AtmosFreq;
 use color_eyre::eyre::{self, ContextCompat};
 use remo_api::{
-    apis::{configuration::Configuration, default_api::call_1_devices_get},
-    models::Signal,
+    apis::{configuration::Configuration, default_api::{call_1_appliances_applianceid_signals_get, call_1_appliances_get, call_1_devices_get}},
+    models::{ApplianceResponseLightButtonsInner, Signal},
 };
 
 #[derive(Clone)]
@@ -35,9 +35,11 @@ impl Remo {
     }
 
     /// 電気のみの信号達を取得する
-    pub async fn get_lighting_signals(&self, token: &str) -> eyre::Result<Vec<Signal>> {
-        // TODO: NatureRemoのAPIを使用して，電気のみの信号達を取得する
-        todo!()
+    pub async fn get_lighting_signals(&self, token: &str) -> eyre::Result<Vec<ApplianceResponseLightButtonsInner>> {
+        let appliances = call_1_appliances_get(&Self::config(token)).await.unwrap();
+        let light_appliance = appliances.iter().find(|appliance|appliance.light.is_some()).unwrap();
+        let buttons = light_appliance.light.clone().unwrap().buttons.unwrap();
+        Ok(buttons)
     }
 
     /// Remoから現在の部屋の明るさを取得
