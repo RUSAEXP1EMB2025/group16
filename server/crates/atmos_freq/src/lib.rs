@@ -19,7 +19,7 @@ impl AtmosFreq {
     pub async fn new(siteinfo: &SiteInfo) -> Self {
         match siteinfo {
             SiteInfo::Youtube { url } => Self::from_youtube(url).await,
-            SiteInfo::Netflix { title } => Self::from_netflix(title),
+            SiteInfo::Netflix { title } => Self::from_netflix(title).await,
             SiteInfo::General { keywords } => Self::from_general(keywords),
         }
     }
