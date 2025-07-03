@@ -8,9 +8,11 @@ impl AtmosdictRepository for Arc<Atmosdict> {
         self.get_all().await
     }
 
-    async fn get_pos_neg_atmoswords(
-        &self,
-    ) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError> {
-        self.get_pos_neg().await
+    async fn get_positive_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError> {
+        self.get_positive().await
+    }
+
+    async fn get_negative_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError> {
+        self.get_positive().await
     }
 }

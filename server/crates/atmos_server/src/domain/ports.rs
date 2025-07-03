@@ -1,7 +1,5 @@
-use std::collections::HashSet;
-
 use atmos_dict::error::AtmosdictError;
-use remo_api::models::Signal;
+use std::collections::HashSet;
 
 use super::models::remo::{
     AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError, GetLigtingSignalsRequest,
@@ -21,9 +19,8 @@ pub trait RemoRepository: Send + Sync + Clone + 'static {
 #[trait_variant::make(Send)]
 pub trait AtmosdictRepository: Send + Sync + Clone + 'static {
     async fn get_all_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
-    async fn get_pos_neg_atmoswords(
-        &self,
-    ) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError>;
+    async fn get_positive_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
+    async fn get_negative_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
 }
 
 #[trait_variant::make(Send)]
@@ -39,7 +36,6 @@ pub trait RemoService {
 #[trait_variant::make(Send)]
 pub trait AtmosdictService: Send + Sync + Clone + 'static {
     async fn get_all_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
-    async fn get_pos_neg_atmoswords(
-        &self,
-    ) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError>;
+    async fn get_positive_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
+    async fn get_negative_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError>;
 }

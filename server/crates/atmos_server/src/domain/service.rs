@@ -60,9 +60,10 @@ where
         self.atmosdict_repository.get_all_atmoswords().await
     }
 
-    async fn get_pos_neg_atmoswords(
-        &self,
-    ) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError> {
-        self.atmosdict_repository.get_pos_neg_atmoswords().await
+    async fn get_positive_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError> {
+        self.atmosdict_repository.get_positive_atmoswords().await
+    }
+    async fn get_negative_atmoswords(&self) -> Result<HashSet<String>, AtmosdictError> {
+        self.atmosdict_repository.get_negative_atmoswords().await
     }
 }
