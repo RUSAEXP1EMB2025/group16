@@ -44,7 +44,7 @@ impl From<AdjustLigtingError> for ApiError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize)]
 pub struct LightingSignals {
     pub on: Signal,
     pub off: Signal,
@@ -75,11 +75,16 @@ impl TryFrom<Vec<Signal>> for LightingSignals {
 
 pub struct SendLightingSignalRequest {
     pub amount: i32,
-    pub increace: bool,
+    pub signals: Signal,
 }
 
 impl SendLightingSignalRequest {
-    pub fn new(current_lighting_amount: f32, atmosfreq: &AtmosFreq) -> Self {
+    pub fn new(
+        current_lighting_amount: f32,
+        atmosfreq: &AtmosFreq,
+        lighting_signals: &LightingSignals,
+    ) -> Self {
+        // TODO: create [SendLightingSignalRequest]
         todo!()
     }
 }
@@ -88,7 +93,7 @@ impl SendLightingSignalRequest {
 mod test {
     use atmos_freq::AtmosFreq;
 
-    use crate::domain::models::remo::SendLightingSignalRequest;
+    use crate::domain::models::remo::{LightingSignals, SendLightingSignalRequest};
 
     #[test]
     fn test_calc_target_lighting_amount() {
@@ -97,8 +102,10 @@ mod test {
         // TODO: 現在の明るさ値を調整する
         let current_lighting_amount = 50.0;
 
+        let lighting_signals = LightingSignals::default();
+
         let send_lighting_signal_request =
-            SendLightingSignalRequest::new(current_lighting_amount, &atmosfreq);
+            SendLightingSignalRequest::new(current_lighting_amount, &atmosfreq, &lighting_signals);
 
         // TODO: 結果予想の値を調整する
         assert_eq!(send_lighting_signal_request.amount, 0);

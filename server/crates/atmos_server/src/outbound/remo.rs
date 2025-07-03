@@ -86,9 +86,9 @@ impl Remo {
         atmosfreq: &AtmosFreq,
         current_lighting_amount: f32,
     ) -> eyre::Result<()> {
-        let send_lighting_signal_request =
-            SendLightingSignalRequest::new(current_lighting_amount, atmosfreq);
         let lighting_signals = self.get_lighting_signals(token).await.unwrap();
+        let send_lighting_signal_request =
+            SendLightingSignalRequest::new(current_lighting_amount, atmosfreq, &lighting_signals);
 
         // TODO: NatureRemoのAPIを利用して，目標の明るさまで調整する
 
