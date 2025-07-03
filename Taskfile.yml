@@ -4,17 +4,6 @@ silent: true
 dotenv:
   - ".env"
 
-vars:
-  COMPOSE_CMD:
-    sh: |
-      if command -v docker compose >/dev/null 2>&1; then
-        echo "docker compose"
-      elif command -v docker-compose >/dev/null 2>&1; then
-        echo "docker-compose"
-      else
-        echo "docker compose"
-      fi
-
 includes:
   extension:
     dir: ./client/atmos_extension/
@@ -27,34 +16,40 @@ includes:
   db:
     dir: ./db
     taskfile: ./taskfile/Taskfile.db.yml
-    flatten: true
 
 tasks:
   default:
-    desc: List all tasks
+    desc: "全てのタスクをリスト"
     aliases:
       - list
     cmd: task -l
 
   dev:
-    desc: Start extension and server
+    desc: "サーバーを起動"
     deps:
-      - task: extension:dev
       - task: server:dev
 
   up:
-    desc: Up docker componse
-    cmd: "{{.COMPOSE_CMD}} up -d --build"
+    desc: "Dockerでサーバーを起動"
+    deps:
+      - server:up
 
   up-build:
-    desc: Up docker componse
-    cmd: "{{.COMPOSE_CMD}} up -d"
+    desc: "Dockerでサーバーをビルドして起動"
+    deps:
+      - server:up-build
 
   down:
-    desc: Down docker componse
-    cmd: "{{.COMPOSE_CMD}} down"
+    desc: "全てののサーバーをダウン"
+    cmd: "docker compose down"
 
   gen:
+    desc: "型を生成"
     deps:
       - server:gen-types
       - extension:gen-api
+
+  setup:
+    desc: "プロジェクトをセットアップ"
+    deps:
+      - db:setup

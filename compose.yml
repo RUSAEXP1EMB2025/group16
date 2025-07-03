@@ -12,8 +12,6 @@ services:
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
       NETFLIX_API_KEY: ${NETFLIX_API_KEY}
       REMO_TOKEN: ${REMO_TOKEN}
-    depends_on:
-      - atmos_db
     volumes:
       - ./db:/workspace/db
   atmos_db:
@@ -28,8 +26,8 @@ services:
       - ./db/migrations:/migrations
     environment:
       DATABASE_URL: "sqlite:/db/data/atmos.db"
-  atmos_client:
-    container_name: atmos_client
+  atmos_extension:
+    container_name: atmos_extension 
     build:
       context: ./client/atmos_extension/
       dockerfile: Dockerfile

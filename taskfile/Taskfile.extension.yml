@@ -3,49 +3,53 @@ silent: true
 
 tasks:
   default:
-    desc: List commands of extension
+    desc: "extensionのタスクを全てリスト"
     cmd: "task -l | grep extension:"
 
   dev:
-    desc: Start atmos extension
+    desc: "extensionを実行する"
     cmd: "pnpm dev"
 
   install:
-    desc: Install dependencies
+    desc: "依存関係をインストール"
     cmd: "pnpm install --frozen-lockfile"
 
   add:
-    desc: Add library to web
+    desc: "ライブラリを追加"
     cmd: pnpm add {{.CLI_ARGS}}
 
   remove:
-    desc: Remove library to web
+    desc: "ライブラリを削除"
     cmd: pnpm uninstall {{.CLI_ARGS}}
 
   format:
-    desc: Run format
+    desc: "formatを実行"
     cmd: "pnpm biome format"
     
   format-w:
-    desc: Run format and write
+    desc: "formatして書き換えを実行"
     cmd: "pnpm biome format --write"
 
   lint:
-    desc: Run lint
+    desc: "lintを実行"
     cmd: "pnpm biome lint"
 
   lint-w:
-    desc: Run lint
+    desc: "lintして書き換えを実行"
     cmd: "pnpm biome lint --apply"
 
   check:
-    desc: Run biome check
+    desc: "biome checkを実行"
     cmd: "pnpm biome check"
 
   check-w:
-    desc: Run biome check with --write
+    desc: "biome checkして書き換えを実行"
     cmd: "pnpm biome check --write"
 
+  build:
+    desc: "extensionをビルド"
+    cmd: docker compose run --rm atmos_extension pnpm build
+
   gen-api:
-    desc: Generate API
+    desc: "serverからAPIを生成"
     cmd: pnpm openapi-zod-client http://localhost:{{.BACKEND_PORT}}/api-docs/openapi.json -o src/api/apiClient.ts 

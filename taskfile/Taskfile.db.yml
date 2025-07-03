@@ -5,11 +5,11 @@ env:
   DB_CONTAINER: "atmos_db"
 
 tasks:
-  db:create:
+  create:
     desc: "データベースを作成"
     cmd: docker compose run --rm {{.DB_CONTAINER}} sqlx database create
 
-  db:drop:
+  drop:
     desc: "データベースを削除"
     cmd: docker compose run --rm -it {{.DB_CONTAINER}} sqlx database drop
 
@@ -43,5 +43,6 @@ tasks:
 
   setup:
     desc: "データベースの初期セットアップ（作成+マイグレーション）"
-    deps: [create, migrate]
-
+    cmds:
+      - task: create
+      - task: migrate
