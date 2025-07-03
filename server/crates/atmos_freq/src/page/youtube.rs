@@ -168,7 +168,8 @@ impl AtmosFreq {
         }
         infos.push(category.to_string());
 
-        let (pos_dict, neg_dict) = atmosdict.get_pos_neg().await.unwrap();
+        let pos_dict = atmosdict.get_positive().await.unwrap();
+        let neg_dict = atmosdict.get_negative().await.unwrap();
 
         let mut pos_count = 0;
         let mut neg_count = 0;
