@@ -4,7 +4,7 @@ pub mod error;
 
 use color_eyre::eyre::{self, Context as _};
 use error::AtmosdictError;
-use sqlx::{SqlitePool, sqlite::SqliteConnectOptions};
+use sqlx::{SqlitePool, prelude::FromRow, sqlite::SqliteConnectOptions};
 use std::{collections::HashSet, str::FromStr as _};
 
 // /// ポジティブ/ネガティブな単語を操作する構造体
@@ -99,5 +99,20 @@ impl Atmosdict {
 
     pub async fn get_pos_neg(&self) -> Result<(HashSet<String>, HashSet<String>), AtmosdictError> {
         todo!()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use sqlx::SqlitePool;
+
+    #[sqlx::test(migrations = "../../../db/migrations", fixtures("atmoswords.sql"))]
+    fn test_get_all(pool: SqlitePool) -> Result<(), sqlx::Error> {
+        Ok(())
+    }
+
+    #[sqlx::test(migrations = "../../../db/migrations", fixtures("atmoswords.sql"))]
+    fn test_get_pos_neg(pool: SqlitePool) -> Result<(), sqlx::Error> {
+        Ok(())
     }
 }
