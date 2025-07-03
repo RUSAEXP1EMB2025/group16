@@ -10,5 +10,3 @@ RUN rm -rf .git/
 RUN rm -rf node_modules
 
 RUN pnpm install
-
-CMD ["pnpm", "build"]

@@ -3,18 +3,28 @@ silent: true
 
 tasks:
   default:
-    desc: List commands of server
+    desc: "serverのコマンド一覧をリスト"
     cmd: "task -l | grep server:"
 
   dev:
-    desc: Start atmos_server
-    cmd: "cargo run"
+    desc: "serverを起動"
+    cmd: cargo run
 
   test:
-    desc: Run server test
-    cmd: "cargo test --workspace"
+    desc: "serverのテストを実行"
+    cmd: cargo test --workspace
+
+  up:
+    desc:
+      "serverをDockerで起動"
+    cmd: docker compose up -d atmos_server
+
+  up-build:
+    desc:
+      "serverをDockerでビルドして起動"
+    cmd: docker compose up -d --build  atmos_server
 
   gen-types:
-    desc: Generate types from backend
+    desc: "serverから型を生成"
     cmds:
       - export TS_RS_EXPORT_DIR="../../../client/atmos_extension/src/api/types/" && cargo test -p atmos_server
