@@ -11,8 +11,13 @@ Atmos is an intelligent ambient lighting control system that analyzes web conten
 The project follows **Hexagonal Architecture** (Domain-driven design):
 
 - **Domain Layer**: Core business logic for atmosphere calculation (`AtmosFreq`, `AdjustLightingRequest`)
+  - `server/crates/atmos_server/src/domain/` - Domain models and business logic
+  - `server/crates/atmos_server/src/domain/ports.rs` - Repository and service traits
 - **Inbound Ports**: HTTP API endpoints (`GET/POST /lighting`)
+  - `server/crates/atmos_server/src/inbound/http/routes/` - API route handlers
 - **Outbound Ports**: Nature Remo API integration via custom `remo_api` crate
+  - `server/crates/atmos_server/src/outbound/` - Repository implementations
+  - `server/crates/remo_api/` - Generated Nature Remo API client
 - **Tech Stack**: Rust (Axum) backend, Svelte 5 + WXT extension, TypeScript throughout
 
 ## Development Commands
@@ -23,10 +28,13 @@ The project follows **Hexagonal Architecture** (Domain-driven design):
 
 ### Extension (client/atmos_extension/)
 - `task extension:dev` - Start extension development mode (`pnpm dev`)
+- `task extension:install` - Install dependencies (`pnpm install --frozen-lockfile`)
+- `task extension:build` - Build extension for production
 - `task extension:format-w` - Format code with Biome (`pnpm biome format --write`)
 - `task extension:lint-w` - Lint with Biome (`pnpm biome lint --apply`)
 - `task extension:check-w` - Run full Biome check with auto-fix
 - `task extension:gen-api` - Generate API client from server's OpenAPI spec
+- `pnpm check` - Run svelte-check for TypeScript validation
 
 ### Server (server/)
 - `task server:dev` - Start Rust server (`cargo run`)
@@ -34,8 +42,18 @@ The project follows **Hexagonal Architecture** (Domain-driven design):
 - `task server:gen-types` - Generate TypeScript types for extension
 
 ### Docker
-- `task up` - Start Docker containers (`docker compose up -d --build`)
+- `task up` - Start Docker containers (`docker compose up -d atmos_server`)
+- `task up-build` - Start Docker containers with build (`docker compose up -d --build atmos_server`)
 - `task down` - Stop Docker containers
+- `task server:up` - Start only server Docker container
+- `task server:up-build` - Start server with build
+
+### Database (db/)
+- `task db:setup` - Initial database setup (create + migrate)
+- `task db:create` - Create database
+- `task db:migrate` - Run migrations
+- `task db:migrate:add -- <name>` - Add new migration
+- `task db:check` - Check database connection and schema
 
 ## Code Generation Flow
 
@@ -52,11 +70,29 @@ The project follows **Hexagonal Architecture** (Domain-driven design):
 
 ## Key Directories
 
+### Server (Rust)
 - `server/crates/atmos/` - Main server binary
 - `server/crates/atmos_server/` - Core business logic and domain models
-- `server/crates/remo_api/` - Nature Remo API client
+  - `src/domain/` - Domain models, ports, and service definitions
+  - `src/inbound/http/routes/` - HTTP API route handlers
+  - `src/outbound/` - Repository implementations
+- `server/crates/remo_api/` - Nature Remo API client (generated)
+- `server/crates/atmos_dict/` - Dictionary functionality and error handling
+- `server/crates/atmos_freq/` - Atmosphere frequency calculation logic
+- `server/crates/atmos_config/` - Configuration management
+
+### Client (Extension)
 - `client/atmos_extension/src/api/` - Generated API client and types
 - `client/atmos_extension/src/entrypoints/` - Extension entry points
+  - `background.ts` - Background script
+  - `content.ts` - Content script
+  - `popup/` - Popup UI components
+- `client/atmos_extension/src/lib/` - Shared Svelte components
+
+### Database & Infrastructure
+- `db/` - Database setup and migrations
+- `taskfile/` - Task automation configurations
+- `docs/` - Project documentation and design files
 
 ## Development Notes
 
