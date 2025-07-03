@@ -24,9 +24,10 @@ services:
     ports:
       - ${DB_PORT}:${DB_PORT}
     volumes:
-      - ./db/data:/db
+      - ./db/data:/db/data
+      - ./db/migrations:/migrations
     environment:
-      DATABASE_URL: "sqlite:atmos.db"
+      DATABASE_URL: "sqlite:/db/data/atmos.db"
   atmos_client:
     container_name: atmos_client
     build:
@@ -34,4 +35,3 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./client/atmos_extension/.output:/usr/src/app/.output
-
