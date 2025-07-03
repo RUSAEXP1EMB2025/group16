@@ -5,7 +5,8 @@ use remo_api::models::Signal;
 
 use super::{
     models::remo::{
-        AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError, GetLigtingSignalsRequest,
+        AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError,
+        GetLigtingSignalsRequest, LightingSignals,
     },
     ports::{AtmosdictRepository, AtmosdictService, RemoRepository, RemoService},
 };
@@ -41,7 +42,7 @@ where
     async fn get_lighting_signals(
         &self,
         req: &GetLigtingSignalsRequest,
-    ) -> Result<Vec<Signal>, GetLightingSignalsError> {
+    ) -> Result<LightingSignals, GetLightingSignalsError> {
         self.remo_repository.get_lighting_signals(req).await
     }
 

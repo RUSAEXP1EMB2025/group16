@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use crate::domain::{
     models::remo::{
-        AdjustLigtingError, AdjustLigtingRequest, CurrentLightingAmount, GetLightingSignalsError,
-        GetLigtingSignalsRequest, TargetLightingAmount,
+        AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError,
+        GetLigtingSignalsRequest, LightingSignals, SendLightingSignalRequest,
     },
     ports::RemoRepository,
 };
@@ -12,7 +12,10 @@ use atmos_dict::Atmosdict;
 use atmos_freq::AtmosFreq;
 use color_eyre::eyre::{self, ContextCompat};
 use remo_api::{
-    apis::{configuration::Configuration, default_api::call_1_devices_get},
+    apis::{
+        configuration::Configuration,
+        default_api::{call_1_appliances_get, call_1_devices_get},
+    },
     models::Signal,
 };
 
@@ -29,19 +32,36 @@ impl Remo {
     fn config(token: &str) -> Configuration {
         Configuration {
             oauth_access_token: Some(token.to_owned()),
-
             ..Default::default()
         }
     }
 
     /// 電気のみの信号達を取得する
-    pub async fn get_lighting_signals(&self, token: &str) -> eyre::Result<Vec<Signal>> {
-        // TODO: NatureRemoのAPIを使用して，電気のみの信号達を取得する
-        todo!()
+    async fn get_lighting_signals(&self, token: &str) -> eyre::Result<LightingSignals> {
+        let appliances = call_1_appliances_get(&Self::config(token)).await.unwrap();
+        let light_appliance = appliances
+            .iter()
+            .find(|appliance| appliance.nickname == Some(String::from("Light")))
+            .unwrap();
+
+        let signals = light_appliance
+            .signals
+            .clone()
+            .unwrap()
+            .iter()
+            .map(|s| Signal {
+                id: s.id.clone(),
+                image: s.image.clone(),
+                name: s.name.clone(),
+            })
+            .collect::<Vec<Signal>>();
+
+        let lighting_signal = LightingSignals::try_from(signals).unwrap();
+        Ok(lighting_signal)
     }
 
     /// Remoから現在の部屋の明るさを取得
-    pub async fn get_lighting_amount(&self, token: &str) -> eyre::Result<CurrentLightingAmount> {
+    async fn get_lighting_amount(&self, token: &str) -> eyre::Result<f32> {
         let devices = call_1_devices_get(&Self::config(token)).await?;
         let device = devices.first().context("Device not found")?;
         let events = device
@@ -53,17 +73,23 @@ impl Remo {
             .get("il")
             .context("illumination not found in event")?;
         let lighting_lighting_amount = il.val.context("Value not found in illumination")?;
-        Ok(CurrentLightingAmount::from(lighting_lighting_amount))
+
+        Ok(lighting_lighting_amount)
     }
 
     /// 目標の明るさまで明るさを調整する
     ///
     /// * `lighting_amount`: 明るさの数値
-    pub async fn apply_lighting(
+    async fn apply_lighting(
         &self,
         token: &str,
-        target_lighting_amount: TargetLightingAmount,
+        atmosfreq: &AtmosFreq,
+        current_lighting_amount: f32,
     ) -> eyre::Result<()> {
+        let send_lighting_signal_request =
+            SendLightingSignalRequest::new(current_lighting_amount, atmosfreq);
+        let lighting_signals = self.get_lighting_signals(token).await.unwrap();
+
         // TODO: NatureRemoのAPIを利用して，目標の明るさまで調整する
 
         todo!()
@@ -78,9 +104,8 @@ impl RemoRepository for Remo {
             .map_err(AdjustLigtingError::GetLightingAmount)?;
 
         let atmosfreq = AtmosFreq::new(&req.site_info, Arc::clone(&self.atmosdict)).await;
-        let target_lighting_amount = TargetLightingAmount::new(atmosfreq, current_lighting_amount);
 
-        self.apply_lighting(&req.remo_token, target_lighting_amount)
+        self.apply_lighting(&req.remo_token, &atmosfreq, current_lighting_amount)
             .await
             .map_err(AdjustLigtingError::ApplyLighting)?;
 
@@ -90,7 +115,7 @@ impl RemoRepository for Remo {
     async fn get_lighting_signals(
         &self,
         req: &GetLigtingSignalsRequest,
-    ) -> Result<Vec<Signal>, GetLightingSignalsError> {
+    ) -> Result<LightingSignals, GetLightingSignalsError> {
         let ligitng_signals = self
             .get_lighting_signals(&req.remo_token)
             .await
@@ -103,10 +128,10 @@ impl RemoRepository for Remo {
 mod test {
     use atmos_config::Config;
     use atmos_dict::Atmosdict;
+    use atmos_freq::AtmosFreq;
     use std::sync::Arc;
 
     use super::Remo;
-    use crate::domain::models::remo::TargetLightingAmount;
 
     async fn atmosdict() -> Arc<Atmosdict> {
         let database_path = Config::from_env().database_path;
@@ -141,9 +166,11 @@ mod test {
             atmosdict: atmosdict().await,
         };
         // TODO: 目標の明るさ値を調整する
-        let target_lighting_amount = TargetLightingAmount::from(2.0);
+        let current_lighting_amount = 2.0;
+        let atmosfreq = AtmosFreq::from(0.0);
+
         assert!(
-            remo.apply_lighting(&remo_token, target_lighting_amount)
+            remo.apply_lighting(&remo_token, &atmosfreq, current_lighting_amount)
                 .await
                 .is_ok()
         )
