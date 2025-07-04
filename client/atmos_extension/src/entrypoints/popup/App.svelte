@@ -1,42 +1,60 @@
 <script lang="ts">
-import svelteLogo from "../../assets/svelte.svg";
-import Counter from "../../lib/Counter.svelte";
+  import TokenInput from "../../lib/components/TokenInput.svelte";
 </script>
 
 <main>
-  <div>
-    <a href="https://wxt.dev" target="_blank" rel="noreferrer">
-      <img src="/wxt.svg" class="logo" alt="WXT Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>WXT + Svelte</h1>
-
-  <div class="card">
-    <Counter />
+  <div class="header">
+    <h1>Atmos</h1>
+    <p class="subtitle">インテリジェント照明制御システム</p>
   </div>
 
-  <p class="read-the-docs">
-    Click on the WXT and Svelte logos to learn more
-  </p>
+  <div class="content">
+    <TokenInput />
+  </div>
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  main {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      sans-serif;
+    background-color: #ffffff;
+    min-height: 500px;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #54bc4ae0);
+
+  .header {
+    text-align: center;
+    padding: 24px 20px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 0;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
+
+  .header h1 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
   }
-  .read-the-docs {
-    color: #888;
+
+  .subtitle {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+    font-weight: 400;
+  }
+
+  .content {
+    padding: 0;
+  }
+
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
   }
 </style>
