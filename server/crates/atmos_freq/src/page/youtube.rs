@@ -1,4 +1,3 @@
-use crate::AtmosFreq;
 use atmos_config::Config;
 use atmos_dict::Atmosdict;
 use reqwest;
@@ -153,45 +152,42 @@ fn coversion_category(id: i32) -> Option<&'static str> {
     }
 }
 
-impl AtmosFreq {
-    pub async fn from_youtube(url: &Url, atmosdict: &Atmosdict) -> Self {
-        let config = Config::from_env();
-        let client = YouTubeClient::new(config.youtube_api_key);
-        let video_info = client.get_video_info_from_url(url).await.unwrap();
-        let category = coversion_category(video_info.category_id.parse().unwrap()).unwrap();
+pub async fn from_youtube(url: &Url, atmosdict: &Atmosdict) -> f64 {
+    let config = Config::from_env();
+    let client = YouTubeClient::new(config.youtube_api_key);
+    let video_info = client.get_video_info_from_url(url).await.unwrap();
+    let category = coversion_category(video_info.category_id.parse().unwrap()).unwrap();
 
-        let mut infos = Vec::<String>::new();
-        infos.push(video_info.title);
-        infos.push(video_info.description);
-        for tag in video_info.tags {
-            infos.push(tag);
-        }
-        infos.push(category.to_string());
-
-        let pos_dict = atmosdict.get_positive().await.unwrap();
-        let neg_dict = atmosdict.get_negative().await.unwrap();
-
-        let mut pos_count = 0;
-        let mut neg_count = 0;
-
-        for info in infos {
-            for pos_word in &pos_dict {
-                if info.contains(pos_word) {
-                    pos_count += 1;
-                    dbg!(pos_word);
-                }
-            }
-            for neg_word in &neg_dict {
-                if info.contains(neg_word) {
-                    neg_count += 1;
-                }
-            }
-        }
-        let total = pos_count + neg_count;
-
-        let score = (pos_count as f64 / total as f64) * 100.0;
-        AtmosFreq(score)
+    let mut infos = Vec::<String>::new();
+    infos.push(video_info.title);
+    infos.push(video_info.description);
+    for tag in video_info.tags {
+        infos.push(tag);
     }
+    infos.push(category.to_string());
+
+    let pos_dict = atmosdict.get_positive().await.unwrap();
+    let neg_dict = atmosdict.get_negative().await.unwrap();
+
+    let mut pos_count = 0;
+    let mut neg_count = 0;
+
+    for info in infos {
+        for pos_word in &pos_dict {
+            if info.contains(pos_word) {
+                pos_count += 1;
+                dbg!(pos_word);
+            }
+        }
+        for neg_word in &neg_dict {
+            if info.contains(neg_word) {
+                neg_count += 1;
+            }
+        }
+    }
+    let total = pos_count + neg_count;
+
+    (pos_count as f64 / total as f64) * 100.0
 }
 
 #[cfg(test)]
@@ -200,7 +196,7 @@ mod test {
     use atmos_dict::Atmosdict;
     use url::Url;
 
-    use crate::AtmosFreq;
+    use crate::page::youtube::from_youtube;
 
     #[tokio::test]
     async fn test_generate_atmosfreq_from_youtube() {
@@ -208,7 +204,7 @@ mod test {
         let atmosdict = Atmosdict::new(&config.database_path).await.unwrap();
 
         //ドラマ「笑ゥせぇるすまん」喪黒福造を演じるのは、秋山竜次(ロバート)！／7月18日(金)よりPrime Videoで独占配信
-        let atmosfreq = AtmosFreq::from_youtube(
+        let atmosfreq = from_youtube(
             &Url::parse("https://youtu.be/E0n8zwIdwFw?si=xImXFFfjmrIn-Kjs").unwrap(),
             &atmosdict,
         )
@@ -216,7 +212,7 @@ mod test {
         dbg!(atmosfreq);
 
         //【ドジャースがリーグ最速で50勝到達！山本無双ピッチで7勝目、マンシー満塁HR含む2安打6打点、コンフォート2戦連発！】ドジャースvsロッキーズ 試合ハイライト MLB2025シーズン 6.26
-        let atmosfreq = AtmosFreq::from_youtube(
+        let atmosfreq = from_youtube(
             &Url::parse("https://youtu.be/eA78BZt_alA?si=cSLWnG2sfXZq6t8x").unwrap(),
             &atmosdict,
         )
@@ -224,7 +220,7 @@ mod test {
         dbg!(atmosfreq);
 
         //『劇場版「無限城編」公開記念！「鬼滅の刃」全七夜特別放送』告知CM
-        let atmosfreq = AtmosFreq::from_youtube(
+        let atmosfreq = from_youtube(
             &Url::parse("https://youtu.be/zn4vWW3MDEw?si=OpJY_MjBMpyxRMD8").unwrap(),
             &atmosdict,
         )
@@ -232,7 +228,7 @@ mod test {
         dbg!(atmosfreq);
 
         //『イカゲーム』シーズン3 最終ゲーム 予告編 - Netflix
-        let atmosfreq = AtmosFreq::from_youtube(
+        let atmosfreq = from_youtube(
             &Url::parse("https://youtu.be/LTeOBlrHhhE?si=Fdumv-Hz588voZd1").unwrap(),
             &atmosdict,
         )

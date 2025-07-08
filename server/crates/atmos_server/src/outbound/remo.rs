@@ -3,13 +3,13 @@ use std::sync::Arc;
 use crate::domain::{
     models::remo::{
         AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError,
-        GetLigtingSignalsRequest, LightingSignals, SendLightingSignalRequest,
+        GetLigtingSignalsRequest, LightingSignals,
     },
     ports::RemoRepository,
 };
 
 use atmos_dict::Atmosdict;
-use atmos_freq::AtmosFreq;
+use atmos_freq::calc_atmosfreq;
 use color_eyre::eyre::{self, ContextCompat};
 use remo_api::{
     apis::{
@@ -83,15 +83,18 @@ impl Remo {
     async fn apply_lighting(
         &self,
         token: &str,
-        atmosfreq: &AtmosFreq,
+        atmosfreq: f64,
         current_lighting_amount: f32,
     ) -> eyre::Result<()> {
         let lighting_signals = self.get_lighting_signals(token).await.unwrap();
-        let send_lighting_signal_request =
-            SendLightingSignalRequest::new(current_lighting_amount, atmosfreq, &lighting_signals);
+        let signals = Remo::create_signals(atmosfreq, &lighting_signals);
 
         // TODO: NatureRemoのAPIを利用して，目標の明るさまで調整する
 
+        todo!()
+    }
+
+    fn create_signals(atmosfreq: f64, lighting_signals: &LightingSignals) -> Vec<Signal> {
         todo!()
     }
 }
@@ -103,9 +106,9 @@ impl RemoRepository for Remo {
             .await
             .map_err(AdjustLigtingError::GetLightingAmount)?;
 
-        let atmosfreq = AtmosFreq::new(&req.site_info, Arc::clone(&self.atmosdict)).await;
+        let atmosfreq = calc_atmosfreq(&req.site_info, Arc::clone(&self.atmosdict)).await;
 
-        self.apply_lighting(&req.remo_token, &atmosfreq, current_lighting_amount)
+        self.apply_lighting(&req.remo_token, atmosfreq, current_lighting_amount)
             .await
             .map_err(AdjustLigtingError::ApplyLighting)?;
 
@@ -128,7 +131,6 @@ impl RemoRepository for Remo {
 mod test {
     use atmos_config::Config;
     use atmos_dict::Atmosdict;
-    use atmos_freq::AtmosFreq;
     use std::sync::Arc;
 
     use super::Remo;
@@ -167,10 +169,10 @@ mod test {
         };
         // TODO: 目標の明るさ値を調整する
         let current_lighting_amount = 2.0;
-        let atmosfreq = AtmosFreq::from(0.0);
+        let atmosfreq = 0.0;
 
         assert!(
-            remo.apply_lighting(&remo_token, &atmosfreq, current_lighting_amount)
+            remo.apply_lighting(&remo_token, atmosfreq, current_lighting_amount)
                 .await
                 .is_ok()
         )

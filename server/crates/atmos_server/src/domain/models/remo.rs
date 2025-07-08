@@ -1,9 +1,7 @@
-use atmos_freq::{AtmosFreq, SiteInfo};
+use atmos_freq::SiteInfo;
 use color_eyre::eyre;
-use derive_more::From;
-use remo_api::models::{ApplianceResponseSignalsInner, Signal};
+use remo_api::models::Signal;
 use serde::Serialize;
-use utoipa::ToSchema;
 
 use crate::inbound::http::api::ApiError;
 
@@ -70,44 +68,5 @@ impl TryFrom<Vec<Signal>> for LightingSignals {
             up: find_signal("up")?,
             down: find_signal("down")?,
         })
-    }
-}
-
-pub struct SendLightingSignalRequest {
-    pub amount: i32,
-    pub signals: Signal,
-}
-
-impl SendLightingSignalRequest {
-    pub fn new(
-        current_lighting_amount: f32,
-        atmosfreq: &AtmosFreq,
-        lighting_signals: &LightingSignals,
-    ) -> Self {
-        // TODO: create [SendLightingSignalRequest]
-        todo!()
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use atmos_freq::AtmosFreq;
-
-    use crate::domain::models::remo::{LightingSignals, SendLightingSignalRequest};
-
-    #[test]
-    fn test_calc_target_lighting_amount() {
-        // TODO: 雰囲気指数の値を調整する
-        let atmosfreq = AtmosFreq::from(50.0);
-        // TODO: 現在の明るさ値を調整する
-        let current_lighting_amount = 50.0;
-
-        let lighting_signals = LightingSignals::default();
-
-        let send_lighting_signal_request =
-            SendLightingSignalRequest::new(current_lighting_amount, &atmosfreq, &lighting_signals);
-
-        // TODO: 結果予想の値を調整する
-        assert_eq!(send_lighting_signal_request.amount, 0);
     }
 }

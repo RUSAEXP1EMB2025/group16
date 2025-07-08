@@ -1,16 +1,14 @@
-//! これはポジティブ/ネガティブな単語を操作するライブラリである。
-
 pub mod error;
 
-use color_eyre::eyre::{self, Context as _, Ok};
+use color_eyre::eyre::{self, Context as _};
 use error::AtmosdictError;
-use sqlx::{SqlitePool, prelude::FromRow, sqlite::SqliteConnectOptions};
+use sqlx::{SqlitePool, sqlite::SqliteConnectOptions};
 use std::{collections::HashSet, str::FromStr as _};
 
 #[derive(sqlx::FromRow)]
 pub struct Wordlist {
-    word: String,
-    is_positive: bool,
+    pub word: String,
+    pub is_positive: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -37,40 +35,47 @@ impl Atmosdict {
         Ok(Atmosdict { pool })
     }
 
+    pub fn from_pool(pool: SqlitePool) -> Self {
+        Atmosdict { pool }
+    }
+
     pub async fn get_all(&self) -> Result<HashSet<String>, AtmosdictError> {
         let words = sqlx::query_as::<_, Wordlist>("SELECT word, is_positive from WORDLIST")
             .fetch_all(&self.pool)
-            .await
-            .unwrap();
+            .await?;
         let wordlist = words
             .into_iter()
             .map(|wordlist| wordlist.word)
             .collect::<HashSet<_>>();
-        Result::<_, AtmosdictError>::Ok(wordlist)
+        Ok(wordlist)
     }
 
     pub async fn get_positive(&self) -> Result<HashSet<String>, AtmosdictError> {
-        let words = sqlx::query_as::<_, Wordlist>("SELECT word, is_positive from WORDLIST WHERE is_positive = true")
-            .fetch_all(&self.pool)
-            .await
-            .unwrap();
+        let words = sqlx::query_as::<_, Wordlist>(
+            "SELECT word, is_positive from WORDLIST WHERE is_positive = true",
+        )
+        .fetch_all(&self.pool)
+        .await
+        .unwrap();
         let wordlist = words
             .into_iter()
             .map(|wordlist| wordlist.word)
             .collect::<HashSet<_>>();
-        Result::<_, AtmosdictError>::Ok(wordlist)
+        Ok(wordlist)
     }
 
     pub async fn get_negative(&self) -> Result<HashSet<String>, AtmosdictError> {
-        let words = sqlx::query_as::<_, Wordlist>("SELECT word, is_positive from WORDLIST WHERE is_positive = false")
-            .fetch_all(&self.pool)
-            .await
-            .unwrap();
+        let words = sqlx::query_as::<_, Wordlist>(
+            "SELECT word, is_positive from WORDLIST WHERE is_positive = false",
+        )
+        .fetch_all(&self.pool)
+        .await
+        .unwrap();
         let wordlist = words
             .into_iter()
             .map(|wordlist| wordlist.word)
             .collect::<HashSet<_>>();
-        Result::<_, AtmosdictError>::Ok(wordlist)
+        Ok(wordlist)
     }
 }
 
@@ -78,13 +83,29 @@ impl Atmosdict {
 mod test {
     use sqlx::SqlitePool;
 
+    use crate::{Atmosdict, error::AtmosdictError};
+
     #[sqlx::test(migrations = "../../../db/migrations", fixtures("atmoswords.sql"))]
-    fn test_get_all(pool: SqlitePool) -> Result<(), sqlx::Error> {
+    fn test_get_all(pool: SqlitePool) -> Result<(), AtmosdictError> {
+        let atmosdict = Atmosdict::from_pool(pool);
+        let atmoswords = atmosdict.get_all().await?;
+        dbg!(atmoswords);
         Ok(())
     }
 
     #[sqlx::test(migrations = "../../../db/migrations", fixtures("atmoswords.sql"))]
-    fn test_get_pos_neg(pool: SqlitePool) -> Result<(), sqlx::Error> {
+    fn test_get_posositive(pool: SqlitePool) -> Result<(), AtmosdictError> {
+        let atmosdict = Atmosdict::from_pool(pool);
+        let atmoswords = atmosdict.get_positive().await?;
+        dbg!(atmoswords);
+        Ok(())
+    }
+
+    #[sqlx::test(migrations = "../../../db/migrations", fixtures("atmoswords.sql"))]
+    fn test_get_negative(pool: SqlitePool) -> Result<(), AtmosdictError> {
+        let atmosdict = Atmosdict::from_pool(pool);
+        let atmoswords = atmosdict.get_negative().await?;
+        dbg!(atmoswords);
         Ok(())
     }
 }
