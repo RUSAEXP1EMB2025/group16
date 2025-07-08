@@ -1,9 +1,7 @@
-use atmos_freq::{AtmosFreq, SiteInfo};
+use atmos_freq::SiteInfo;
 use color_eyre::eyre;
-use derive_more::From;
-use remo_api::models::{ApplianceResponseSignalsInner, Signal};
+use remo_api::models::Signal;
 use serde::Serialize;
-use utoipa::ToSchema;
 
 use crate::inbound::http::api::ApiError;
 
