@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-tracing-subscriber = "0.3"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 tokio.workspace = true
 color-eyre.workspace = true
 atmos_server = { path = "../atmos_server" }

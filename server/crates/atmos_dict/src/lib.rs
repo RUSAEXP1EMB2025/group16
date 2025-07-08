@@ -40,7 +40,7 @@ impl Atmosdict {
     }
 
     pub async fn get_all(&self) -> Result<HashSet<String>, AtmosdictError> {
-        let words = sqlx::query_as::<_, Wordlist>("SELECT word, is_positive from WORDLIST")
+        let words = sqlx::query_as::<_, Wordlist>("SELECT word, is_positive from atmoswords")
             .fetch_all(&self.pool)
             .await?;
         let wordlist = words
@@ -52,7 +52,7 @@ impl Atmosdict {
 
     pub async fn get_positive(&self) -> Result<HashSet<String>, AtmosdictError> {
         let words = sqlx::query_as::<_, Wordlist>(
-            "SELECT word, is_positive from WORDLIST WHERE is_positive = true",
+            "SELECT word, is_positive from atmoswords WHERE is_positive = true",
         )
         .fetch_all(&self.pool)
         .await
@@ -66,7 +66,7 @@ impl Atmosdict {
 
     pub async fn get_negative(&self) -> Result<HashSet<String>, AtmosdictError> {
         let words = sqlx::query_as::<_, Wordlist>(
-            "SELECT word, is_positive from WORDLIST WHERE is_positive = false",
+            "SELECT word, is_positive from atmoswords WHERE is_positive = false",
         )
         .fetch_all(&self.pool)
         .await

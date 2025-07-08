@@ -52,9 +52,6 @@ impl AdjustLightingHttpRequestBody {
 enum ParseAdjustLightingHttpRequestError {
     #[error("Url format is invalid")]
     InvalidUrlFormat(url::ParseError),
-
-    #[error("Title not found for Netflix")]
-    TitleNotFoundForNetflix,
 }
 
 impl From<ParseAdjustLightingHttpRequestError> for ApiError {
@@ -63,7 +60,7 @@ impl From<ParseAdjustLightingHttpRequestError> for ApiError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ToSchema)]
 pub struct AdjustLightingHttpResponseData {
     message: &'static str,
 }
@@ -75,7 +72,7 @@ pub struct AdjustLightingHttpResponseData {
     description = "部屋の電気をサイト内容から調整",
     request_body = AdjustLightingHttpRequestBody,
     responses(
-        (status = 200, description = "Success"),
+        (status = 200, description = "Success", body = ApiSuccess<AdjustLightingHttpResponseData>),
     ),
 )]
 pub async fn adjust_lighting<S: RemoService + AtmosdictService>(

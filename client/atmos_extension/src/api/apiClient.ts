@@ -20,11 +20,15 @@ const SiteDataRequest = z.union([
 const AdjustLightingHttpRequestBody = z
   .object({ remo_token: z.string(), site_data: SiteDataRequest })
   .passthrough();
+const ApiSuccess_AdjustLightingHttpResponseData = z.array(
+  z.object({}).partial().passthrough()
+);
 
 export const schemas = {
   GetLightingSignalsHttpRequestBody,
   SiteDataRequest,
   AdjustLightingHttpRequestBody,
+  ApiSuccess_AdjustLightingHttpResponseData,
 };
 
 const endpoints = makeApi([
@@ -64,7 +68,7 @@ const endpoints = makeApi([
         schema: AdjustLightingHttpRequestBody,
       },
     ],
-    response: z.void(),
+    response: z.array(z.object({}).partial().passthrough()).min(2).max(2),
   },
 ]);
 

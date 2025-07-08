@@ -57,7 +57,7 @@ impl TryFrom<Vec<Signal>> for LightingSignals {
         let find_signal = |name: &str| -> Result<Signal, eyre::Report> {
             signals
                 .iter()
-                .find(|s| s.name.as_deref() == Some(name))
+                .find(|s| s.name == Some(String::from(name)))
                 .cloned()
                 .ok_or_else(|| eyre::eyre!("Signal '{}' not found", name))
         };
@@ -65,8 +65,8 @@ impl TryFrom<Vec<Signal>> for LightingSignals {
         Ok(LightingSignals {
             on: find_signal("on")?,
             off: find_signal("off")?,
-            up: find_signal("up")?,
-            down: find_signal("down")?,
+            up: find_signal("top")?,
+            down: find_signal("bottom")?,
         })
     }
 }

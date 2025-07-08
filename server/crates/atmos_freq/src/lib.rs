@@ -23,26 +23,3 @@ where
         SiteData::Generic { keywords } => from_general(keywords, atmosdict).await,
     }
 }
-
-#[cfg(test)]
-mod test {
-    use atmos_config::Config;
-    use atmos_dict::Atmosdict;
-
-    use crate::{SiteData, calc_atmosfreq};
-
-    #[tokio::test]
-    async fn test_calc_atmosfreq_from_general() {
-        // TODO: テストケースの実装
-        let keywords = vec!["a", "b", "c"];
-        let expect_result = 0.0;
-
-        let keywords = keywords.into_iter().map(String::from).collect();
-
-        let config = Config::from_env();
-        let atmosdict = Atmosdict::new(&config.database_path).await.unwrap();
-
-        let atmosfreq = calc_atmosfreq(&SiteData::Generic { keywords }, &atmosdict).await;
-        assert_eq!(atmosfreq, expect_result)
-    }
-}

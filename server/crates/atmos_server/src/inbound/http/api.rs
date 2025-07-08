@@ -5,6 +5,7 @@ use axum::{
 };
 use color_eyre::eyre;
 use serde::Serialize;
+use utoipa::ToSchema;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ApiError {
@@ -18,7 +19,7 @@ impl From<eyre::Error> for ApiError {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, ToSchema)]
 pub struct ApiSuccess<T: Serialize + PartialEq>(StatusCode, Json<ApiResponseBody<T>>);
 
 impl<T: Serialize + PartialEq> ApiSuccess<T> {

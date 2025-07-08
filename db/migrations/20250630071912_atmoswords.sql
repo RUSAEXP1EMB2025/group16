@@ -1,4 +1,5 @@
 CREATE TABLE IF NOT EXISTS atmoswords (
-    word TEXT PRIMARY KEY,
-    is_positive BOOLEAN NOT NULL
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    word text,
+    is_positive boolean NOT NULL
 );

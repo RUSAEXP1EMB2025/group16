@@ -185,6 +185,7 @@ pub async fn from_youtube(url: &Url, atmosdict: &Atmosdict) -> f64 {
             }
         }
     }
+
     let total = pos_count + neg_count;
 
     (pos_count as f64 / total as f64) * 100.0

@@ -1,7 +1,5 @@
 use color_eyre::eyre::{self, Context as _};
-use std::{env, path::PathBuf, sync::Once};
-
-static INIT: Once = Once::new();
+use std::{env, path::PathBuf};
 
 const DATABASE_PATH: &str = "DATABASE_PATH";
 const SERVER_PORT: &str = "SERVER_PORT";
@@ -20,29 +18,25 @@ pub struct Config {
 
 impl Config {
     pub fn from_env() -> Config {
-        let mut config = Config::default();
-        INIT.call_once(|| {
-            let database_path = load_env(DATABASE_PATH).unwrap();
-            let database_path = PathBuf::from(database_path);
+        dotenvy::dotenv().ok();
+        let database_path = load_env(DATABASE_PATH).unwrap();
+        let database_path = PathBuf::from(database_path);
 
-            let mut cargo_manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-            cargo_manifest_dir.pop(); //crates
-            cargo_manifest_dir.pop(); //server
-            cargo_manifest_dir.pop(); //root
+        let mut cargo_manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        cargo_manifest_dir.pop(); //crates
+        cargo_manifest_dir.pop(); //server
+        cargo_manifest_dir.pop(); //root
 
-            let database_path = cargo_manifest_dir.join(database_path);
-            let database_path = database_path.to_str().unwrap();
+        let database_path = cargo_manifest_dir.join(database_path);
+        let database_path = database_path.to_str().unwrap();
 
-            config = Config {
-                server_port: load_env(SERVER_PORT).unwrap_or_else(|_| String::from("5152")),
-                database_path: database_path.to_string(),
-                youtube_api_key: load_env(YOUTUBE_API_KEY).unwrap(),
-                netflix_api_key: load_env(NETFLIX_API_KEY).unwrap(),
-                remo_token: load_env(REMO_TOKEN).ok(),
-            };
-        });
-
-        config
+        Config {
+            server_port: load_env(SERVER_PORT).unwrap_or_else(|_| String::from("5152")),
+            database_path: database_path.to_string(),
+            youtube_api_key: load_env(YOUTUBE_API_KEY).unwrap(),
+            netflix_api_key: load_env(NETFLIX_API_KEY).unwrap(),
+            remo_token: load_env(REMO_TOKEN).ok(),
+        }
     }
 }
 

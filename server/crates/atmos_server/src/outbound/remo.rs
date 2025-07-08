@@ -66,6 +66,7 @@ impl Remo {
     async fn get_lighting_amount(&self, token: &str) -> eyre::Result<f32> {
         let devices = call_1_devices_get(&Self::config(token)).await?;
         let device = devices.first().context("Device not found")?;
+
         let events = device
             .newest_events
             .as_ref()
@@ -86,7 +87,7 @@ impl Remo {
         &self,
         token: &str,
         atmosfreq: f64,
-        _current_lighting_amount: f32,
+        // current_lighting_amount: f32,
     ) -> eyre::Result<()> {
         let lighting_signals = self.get_lighting_signals(token).await.unwrap();
         let signals = Remo::create_signals(atmosfreq, &lighting_signals);
@@ -102,6 +103,10 @@ impl Remo {
         Ok(())
     }
 
+    /// atmosfreqからシグナルを作成
+    ///
+    /// * `atmosfreq`: 雰囲気指数
+    /// * `lighting_signals`: 電気のシグナルたち
     fn create_signals(atmosfreq: f64, lighting_signals: &LightingSignals) -> Vec<&Signal> {
         match atmosfreq {
             0.0 => vec![&lighting_signals.off],
@@ -131,14 +136,10 @@ impl Remo {
 
 impl RemoRepository for Remo {
     async fn adjust_lighting(&self, req: &AdjustLigtingRequest) -> Result<(), AdjustLigtingError> {
-        let current_lighting_amount = self
-            .get_lighting_amount(&req.remo_token)
-            .await
-            .map_err(AdjustLigtingError::GetLightingAmount)?;
-
         let atmosfreq = calc_atmosfreq(&req.site_data, Arc::clone(&self.atmosdict)).await;
+        tracing::info!(atmosfreq);
 
-        self.apply_lighting(&req.remo_token, atmosfreq, current_lighting_amount)
+        self.apply_lighting(&req.remo_token, atmosfreq)
             .await
             .map_err(AdjustLigtingError::ApplyLighting)?;
 
@@ -198,13 +199,8 @@ mod test {
             atmosdict: atmosdict().await,
         };
         // TODO: 目標の明るさ値を調整する
-        let current_lighting_amount = 2.0;
         let atmosfreq = 0.0;
 
-        assert!(
-            remo.apply_lighting(&remo_token, atmosfreq, current_lighting_amount)
-                .await
-                .is_ok()
-        )
+        assert!(remo.apply_lighting(&remo_token, atmosfreq).await.is_ok())
     }
 }
