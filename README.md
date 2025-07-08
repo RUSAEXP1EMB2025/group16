@@ -21,7 +21,7 @@ Atmosは、Webコンテンツを解析して自動的にNature Remoスマート�
 - `server/crates/atmos/` - メインサーバーバイナリ
 - `server/crates/atmos_server/` - コアビジネスロジックとドメインモデル
 - `server/crates/remo_api/` - Nature Remo APIクライアント
-- `server/crates/atmos_dict/` - エラーハンドリングとドメインモデル
+- `server/crates/atmos_dict/` - 雰囲気単語を集めた辞書
 
 ### クライアント側 (`client/atmos_extension/`)
 - `client/atmos_extension/src/api/` - 生成されたAPIクライアントと型定義
