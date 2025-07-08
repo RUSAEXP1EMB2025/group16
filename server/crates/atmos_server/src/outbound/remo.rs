@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::domain::{
     models::remo::{
         AdjustLigtingError, AdjustLigtingRequest, GetLightingSignalsError,
-        GetLigtingSignalsRequest, LightingSignals, SendLightingSignalRequest,
+        GetLigtingSignalsRequest, LightingSignals,
     },
     ports::RemoRepository,
 };
@@ -87,11 +87,14 @@ impl Remo {
         current_lighting_amount: f32,
     ) -> eyre::Result<()> {
         let lighting_signals = self.get_lighting_signals(token).await.unwrap();
-        let send_lighting_signal_request =
-            SendLightingSignalRequest::new(current_lighting_amount, atmosfreq, &lighting_signals);
+        let signals = Remo::create_signals(atmosfreq, &lighting_signals);
 
         // TODO: NatureRemoのAPIを利用して，目標の明るさまで調整する
 
+        todo!()
+    }
+
+    fn create_signals(atmosfreq: &AtmosFreq, lighting_signals: &LightingSignals) -> Vec<Signal> {
         todo!()
     }
 }
