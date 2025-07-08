@@ -102,34 +102,30 @@ impl Remo {
         Ok(())
     }
 
-    fn create_signals(atmosfreq: f64, lighting_signals: &LightingSignals) -> Vec<Signal> {
-        if atmosfreq == 0.0 {
-            return vec![lighting_signals.off.clone()];
-        } else if atmosfreq == 100.0 {
-            return vec![lighting_signals.on.clone()];
-        } else if (0.0..30.0).contains(&atmosfreq) {
-            return vec![
-                lighting_signals.on.clone(),
-                lighting_signals.on.clone(),
-                lighting_signals.down.clone(),
-            ];
-        } else if (30.0..70.0).contains(&atmosfreq) {
-            return vec![
-                lighting_signals.on.clone(),
-                lighting_signals.on.clone(),
-                lighting_signals.down.clone(),
-                lighting_signals.down.clone(),
-            ];
-        } else if (70.0..100.0).contains(&atmosfreq) {
-            return vec![
-                lighting_signals.on.clone(),
-                lighting_signals.on.clone(),
-                lighting_signals.down.clone(),
-                lighting_signals.down.clone(),
-                lighting_signals.down.clone(),
-            ];
+    fn create_signals(atmosfreq: f64, lighting_signals: &LightingSignals) -> Vec<&Signal> {
+        match atmosfreq {
+            0.0 => vec![&lighting_signals.off],
+            0.0..30.0 => vec![
+                &lighting_signals.on,
+                &lighting_signals.on,
+                &lighting_signals.down,
+            ],
+            30.0..70.0 => vec![
+                &lighting_signals.on,
+                &lighting_signals.on,
+                &lighting_signals.down,
+                &lighting_signals.down,
+            ],
+            70.0..80.0 => vec![
+                &lighting_signals.on,
+                &lighting_signals.on,
+                &lighting_signals.down,
+                &lighting_signals.down,
+                &lighting_signals.down,
+            ],
+            100.0 => vec![&lighting_signals.on],
+            _ => Vec::new(),
         }
-        Vec::new()
     }
 }
 
