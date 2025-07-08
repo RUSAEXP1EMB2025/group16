@@ -103,7 +103,33 @@ impl Remo {
     }
 
     fn create_signals(atmosfreq: f64, lighting_signals: &LightingSignals) -> Vec<Signal> {
-        todo!()
+        if atmosfreq == 0.0 {
+            return vec![lighting_signals.off.clone()];
+        } else if atmosfreq == 100.0 {
+            return vec![lighting_signals.on.clone()];
+        } else if (0.0..30.0).contains(&atmosfreq) {
+            return vec![
+                lighting_signals.on.clone(),
+                lighting_signals.on.clone(),
+                lighting_signals.down.clone(),
+            ];
+        } else if (30.0..70.0).contains(&atmosfreq) {
+            return vec![
+                lighting_signals.on.clone(),
+                lighting_signals.on.clone(),
+                lighting_signals.down.clone(),
+                lighting_signals.down.clone(),
+            ];
+        } else if (70.0..100.0).contains(&atmosfreq) {
+            return vec![
+                lighting_signals.on.clone(),
+                lighting_signals.on.clone(),
+                lighting_signals.down.clone(),
+                lighting_signals.down.clone(),
+                lighting_signals.down.clone(),
+            ];
+        }
+        Vec::new()
     }
 }
 
