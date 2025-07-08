@@ -55,19 +55,13 @@ impl HttpServer {
         };
 
         let cors = CorsLayer::new()
-            .allow_origin(AllowOrigin::exact(HeaderValue::from_static(
-                "https://www.youtube.com",
-            )))
-            .allow_origin(AllowOrigin::exact(HeaderValue::from_static(
-                "https://www.netflix.com",
-            )))
+            .allow_origin(AllowOrigin::any())
             .allow_methods(vec![Method::GET, Method::POST, Method::PUT, Method::DELETE])
             .allow_headers(vec![
                 header::ACCEPT,
                 header::CONTENT_TYPE,
                 header::AUTHORIZATION,
-            ])
-            .allow_credentials(true);
+            ]);
 
         let router = axum::Router::new()
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
