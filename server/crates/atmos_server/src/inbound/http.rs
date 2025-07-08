@@ -25,7 +25,7 @@ pub struct HttpServerConfig {
 
 #[derive(Debug, Clone)]
 pub struct AppState<S: RemoService + AtmosdictService> {
-    service: Arc<S>,
+    pub service: Arc<S>,
 }
 
 pub struct HttpServer {

@@ -62,24 +62,6 @@ impl Remo {
         Ok(lighting_signal)
     }
 
-    /// Remoから現在の部屋の明るさを取得
-    async fn get_lighting_amount(&self, token: &str) -> eyre::Result<f32> {
-        let devices = call_1_devices_get(&Self::config(token)).await?;
-        let device = devices.first().context("Device not found")?;
-
-        let events = device
-            .newest_events
-            .as_ref()
-            .context("Event not found in device")?;
-
-        let il = events
-            .get("il")
-            .context("illumination not found in event")?;
-        let lighting_lighting_amount = il.val.context("Value not found in illumination")?;
-
-        Ok(lighting_lighting_amount)
-    }
-
     /// 目標の明るさまで明るさを調整する
     ///
     /// * `lighting_amount`: 明るさの数値
@@ -173,6 +155,7 @@ mod test {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn test_get_lighting_signals() {
         let remo_token = Config::from_env().remo_token.unwrap();
         let remo = Remo {
@@ -182,17 +165,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_get_lighting_amount() {
-        let remo_token = Config::from_env().remo_token.unwrap();
-        let remo = Remo {
-            atmosdict: atmosdict().await,
-        };
-        let amount = remo.get_lighting_amount(&remo_token).await;
-        dbg!(&amount);
-        assert!(amount.is_ok());
-    }
-
-    #[tokio::test]
+    #[ignore]
     async fn test_apply_lighting() {
         let remo_token = Config::from_env().remo_token.unwrap();
         let remo = Remo {
