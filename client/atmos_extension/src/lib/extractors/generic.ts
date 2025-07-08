@@ -1,4 +1,4 @@
-import type { ExtractedContent, SiteExtractor } from "../types/content";
+import type { SiteDataRequest, SiteExtractor } from "../types/content";
 import { getAllTextNodes } from "../utils/dom";
 
 export class GenericExtractor implements SiteExtractor {
@@ -13,29 +13,29 @@ export class GenericExtractor implements SiteExtractor {
     );
   }
 
-  async extract(): Promise<ExtractedContent | null> {
+  async extract(): Promise<SiteDataRequest | undefined> {
     try {
       // TODO: バックエンドから辞書を取得
       // 現在はプレースホルダーとして空の配列を使用
       if (this.dictionary.length === 0) {
-        console.log("Dictionary not loaded yet");
-        return null;
+        console.error("Dictionary not loaded yet");
+        return;
       }
 
-      const foundWords = this.searchDictionaryInPage();
+      const keywords = this.searchDictionaryInPage();
 
-      if (foundWords.length === 0) {
-        return null;
+      if (keywords.length === 0) {
+        return;
       }
 
       return {
-        type: "dictionary-words",
-        data: foundWords,
-        source: "generic"
+        Generic: {
+          keywords
+        }
       };
     } catch (error) {
-      console.error("Generic extraction failed:", error);
-      return null;
+      console.error("generic extraction failed:", error);
+      return;
     }
   }
 

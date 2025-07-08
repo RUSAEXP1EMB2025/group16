@@ -2,7 +2,9 @@ import { detectSiteType, isTargetSite } from "../lib/utils/site-detector";
 import { YouTubeExtractor } from "../lib/extractors/youtube";
 import { NetflixExtractor } from "../lib/extractors/netflix";
 import { GenericExtractor } from "../lib/extractors/generic";
-import type { ExtractedContent } from "../lib/types/content";
+import type { SiteDataRequest, SiteExtractor } from "../lib/types/content";
+import { atmosApi } from "@/api/client";
+import { tokenManager } from "@/lib/stores/token";
 
 export default defineContentScript({
   matches: ["*://*.youtube.com/*", "*://*.netflix.com/*", "*://*/*"],
@@ -14,27 +16,26 @@ export default defineContentScript({
     }
 
     const siteType = detectSiteType(window.location.href);
-    let extractor;
+    let extractor: SiteExtractor;
 
-    switch (siteType) {
-      case "youtube":
-        extractor = new YouTubeExtractor();
-        break;
-      case "netflix":
-        extractor = new NetflixExtractor();
-        break;
-      case "generic":
-        extractor = new GenericExtractor();
-        break;
-      default:
-        console.log("Unknown site type");
-        return;
+    const extractors = {
+      youtube: YouTubeExtractor,
+      netflix: NetflixExtractor,
+      generic: GenericExtractor
+    };
+
+    const ExtractorClass = extractors[siteType];
+
+    if (ExtractorClass) {
+      extractor = new ExtractorClass();
+    } else {
+      console.log("Unknown site type");
+      return;
     }
 
-    // Perform initial extraction
     performExtraction(extractor);
 
-    // Monitor URL changes (SPA site support)
+    // URLの変更を検知 (SPA サイト対応)
     let currentUrl = window.location.href;
     const observer = new MutationObserver(() => {
       if (window.location.href !== currentUrl) {
@@ -51,18 +52,23 @@ export default defineContentScript({
   }
 });
 
-async function performExtraction(extractor: any) {
+async function performExtraction<T extends SiteExtractor>(extractor: T) {
   try {
-    const content: ExtractedContent | null = await extractor.extract();
+    const content = await extractor.extract();
 
     if (content) {
       console.log("Extracted content:", content);
 
-      // TODO: バックエンドに送信
-      // await sendToBackend(content);
+      const remoToken = await tokenManager.getToken();
+      if (remoToken) {
+        try {
+          await atmosApi.adjust_lighting({ remo_token: remoToken, site_data: content });
+        } catch (err) {
+          console.error(err);
+        }
 
-      // 現在はコンソールに出力
-      logExtractedContent(content);
+        logExtractedContent(content);
+      }
     } else {
       console.log("No content extracted");
     }
@@ -71,11 +77,6 @@ async function performExtraction(extractor: any) {
   }
 }
 
-function logExtractedContent(content: ExtractedContent) {
+function logExtractedContent(content: SiteDataRequest) {
   console.log(`[${content.source}] ${content.type}:`, content.data);
 }
-
-// TODO: バックエンドとの通信実装
-// async function sendToBackend(content: ExtractedContent) {
-//   // API呼び出し実装
-// }

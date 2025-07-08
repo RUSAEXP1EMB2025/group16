@@ -1,7 +1,5 @@
-use std::collections::HashSet;
-
 use atmos_dict::error::AtmosdictError;
-use remo_api::models::Signal;
+use std::collections::HashSet;
 
 use super::{
     models::remo::{

@@ -106,7 +106,7 @@ impl RemoRepository for Remo {
             .await
             .map_err(AdjustLigtingError::GetLightingAmount)?;
 
-        let atmosfreq = calc_atmosfreq(&req.site_info, Arc::clone(&self.atmosdict)).await;
+        let atmosfreq = calc_atmosfreq(&req.site_data, Arc::clone(&self.atmosdict)).await;
 
         self.apply_lighting(&req.remo_token, atmosfreq, current_lighting_amount)
             .await

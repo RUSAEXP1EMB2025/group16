@@ -1,4 +1,4 @@
-import type { ExtractedContent, SiteExtractor } from "../types/content";
+import type { SiteDataRequest, SiteExtractor } from "../types/content";
 
 export class YouTubeExtractor implements SiteExtractor {
   canExtract(url: string): boolean {
@@ -6,27 +6,25 @@ export class YouTubeExtractor implements SiteExtractor {
     return hostname.includes("youtube.com") || hostname.includes("youtu.be");
   }
 
-  async extract(): Promise<ExtractedContent | null> {
+  async extract(): Promise<SiteDataRequest | undefined> {
     try {
-      const currentUrl = window.location.href;
+      const url = window.location.href;
 
-      const videoId = this.extractVideoId(currentUrl);
+      const videoId = this.extractVideoId(url);
       if (!videoId) {
-        return null;
+        return;
       }
 
       return {
-        type: "url",
-        data: currentUrl,
-        source: "youtube"
+        Youtube: { url }
       };
     } catch (error) {
       console.error("YouTube extraction failed:", error);
-      return null;
+      return;
     }
   }
 
-  private extractVideoId(url: string): string | null {
+  private extractVideoId(url: string): string | undefined {
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
       /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
@@ -40,6 +38,6 @@ export class YouTubeExtractor implements SiteExtractor {
       }
     }
 
-    return null;
+    return;
   }
 }

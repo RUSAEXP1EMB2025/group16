@@ -1,12 +1,11 @@
-export interface ExtractedContent {
-  type: 'url' | 'title' | 'dictionary-words';
-  data: string | string[];
-  source: 'youtube' | 'netflix' | 'generic';
-}
+import { schemas } from "@/api/apiClient";
+import z from "zod";
+
+export type SiteDataRequest = z.infer<typeof schemas.SiteDataRequest>;
 
 export interface SiteExtractor {
   canExtract(url: string): boolean;
-  extract(): Promise<ExtractedContent | null>;
+  extract(): Promise<SiteDataRequest | undefined>;
 }
 
-export type SiteType = 'youtube' | 'netflix' | 'generic';
+export type SiteType = "youtube" | "netflix" | "generic";

@@ -1,4 +1,4 @@
-import type { ExtractedContent, SiteExtractor } from "../types/content";
+import type { SiteDataRequest, SiteExtractor } from "../types/content";
 import { waitForElement, extractTextFromElement } from "../utils/dom";
 
 export class NetflixExtractor implements SiteExtractor {
@@ -7,25 +7,23 @@ export class NetflixExtractor implements SiteExtractor {
     return hostname.includes("netflix.com");
   }
 
-  async extract(): Promise<ExtractedContent | null> {
+  async extract(): Promise<SiteDataRequest | undefined> {
     try {
       if (!this.isWatchPage()) {
-        return null;
+        return;
       }
 
       const title = await this.extractTitle();
       if (!title) {
-        return null;
+        return;
       }
 
       return {
-        type: "title",
-        data: title,
-        source: "netflix"
+        Netflix: { title }
       };
     } catch (error) {
       console.error("Netflix extraction failed:", error);
-      return null;
+      return;
     }
   }
 

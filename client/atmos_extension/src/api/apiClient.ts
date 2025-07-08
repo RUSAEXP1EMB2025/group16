@@ -1,21 +1,41 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
-const GetLightingSignalsHttpRequestBody = z.object({ remo_token: z.string() }).passthrough();
+const GetLightingSignalsHttpRequestBody = z
+  .object({ remo_token: z.string() })
+  .passthrough();
+const SiteDataRequest = z.union([
+  z
+    .object({ Youtube: z.object({ url: z.string() }).passthrough() })
+    .passthrough(),
+  z
+    .object({ Netflix: z.object({ title: z.string() }).passthrough() })
+    .passthrough(),
+  z
+    .object({
+      Generic: z.object({ keywords: z.array(z.string()) }).passthrough(),
+    })
+    .passthrough(),
+]);
 const AdjustLightingHttpRequestBody = z
-  .object({
-    remo_token: z.string(),
-    texts: z.array(z.string()),
-    url: z.string()
-  })
+  .object({ remo_token: z.string(), site_data: SiteDataRequest })
   .passthrough();
 
 export const schemas = {
   GetLightingSignalsHttpRequestBody,
-  AdjustLightingHttpRequestBody
+  SiteDataRequest,
+  AdjustLightingHttpRequestBody,
 };
 
 const endpoints = makeApi([
+  {
+    method: "get",
+    path: "/atmoswords",
+    alias: "get_atmoswords",
+    description: `サイトから取得するべきキーワード辞書を取得`,
+    requestFormat: "json",
+    response: z.void(),
+  },
   {
     method: "get",
     path: "/lighting",
@@ -26,10 +46,10 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ remo_token: z.string() }).passthrough()
-      }
+        schema: z.object({ remo_token: z.string() }).passthrough(),
+      },
     ],
-    response: z.void()
+    response: z.void(),
   },
   {
     method: "post",
@@ -41,11 +61,11 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: AdjustLightingHttpRequestBody
-      }
+        schema: AdjustLightingHttpRequestBody,
+      },
     ],
-    response: z.void()
-  }
+    response: z.void(),
+  },
 ]);
 
 export const api = new Zodios(endpoints);

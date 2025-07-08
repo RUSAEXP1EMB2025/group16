@@ -1,4 +1,4 @@
-use atmos_freq::SiteInfo;
+use atmos_freq::SiteData;
 use color_eyre::eyre;
 use remo_api::models::Signal;
 use serde::Serialize;
@@ -8,7 +8,7 @@ use crate::inbound::http::api::ApiError;
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AdjustLigtingRequest {
     pub remo_token: String,
-    pub site_info: SiteInfo,
+    pub site_data: SiteData,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
