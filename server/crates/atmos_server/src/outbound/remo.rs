@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use crate::domain::{
     models::remo::{
@@ -14,7 +14,9 @@ use color_eyre::eyre::{self, ContextCompat};
 use remo_api::{
     apis::{
         configuration::Configuration,
-        default_api::{call_1_appliances_get, call_1_devices_get},
+        default_api::{
+            call_1_appliances_get, call_1_devices_get, call_1_signals_signalid_send_post,
+        },
     },
     models::Signal,
 };
@@ -84,14 +86,20 @@ impl Remo {
         &self,
         token: &str,
         atmosfreq: f64,
-        current_lighting_amount: f32,
+        _current_lighting_amount: f32,
     ) -> eyre::Result<()> {
         let lighting_signals = self.get_lighting_signals(token).await.unwrap();
         let signals = Remo::create_signals(atmosfreq, &lighting_signals);
 
-        // TODO: NatureRemoのAPIを利用して，目標の明るさまで調整する
-
-        todo!()
+        for signal in signals {
+            let _ = call_1_signals_signalid_send_post(
+                &Remo::config(token),
+                signal.id.as_ref().unwrap(),
+            )
+            .await;
+            tokio::time::sleep(Duration::from_secs(1)).await;
+        }
+        Ok(())
     }
 
     fn create_signals(atmosfreq: f64, lighting_signals: &LightingSignals) -> Vec<Signal> {
