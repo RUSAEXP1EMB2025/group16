@@ -19,15 +19,29 @@ Atmosは、Webコンテンツを解析して自動的にNature Remoスマート�
 
 ## モジュール構成
 
-### サーバー側 (`server/`)
+### サーバー側 (Rust)
 - `server/crates/atmos/` - メインサーバーバイナリ
 - `server/crates/atmos_server/` - コアビジネスロジックとドメインモデル
-- `server/crates/remo_api/` - Nature Remo APIクライアント
-- `server/crates/atmos_dict/` - 雰囲気単語を集めた辞書
+  - `src/domain/` - ドメインモデル、ポート、サービス定義
+  - `src/inbound/http/routes/` - HTTP APIルートハンドラー
+  - `src/outbound/` - リポジトリ実装
+- `server/crates/remo_api/` - Nature Remo APIクライアント（生成済み）
+- `server/crates/atmos_dict/` - 辞書機能とエラーハンドリング
+- `server/crates/atmos_freq/` - 雰囲気指数計算ロジック
+- `server/crates/atmos_config/` - 設定管理
 
-### クライアント側 (`client/atmos_extension/`)
+### クライアント側 (拡張機能)
 - `client/atmos_extension/src/api/` - 生成されたAPIクライアントと型定義
 - `client/atmos_extension/src/entrypoints/` - 拡張機能のエントリーポイント
+  - `background.ts` - バックグラウンドスクリプト
+  - `content.ts` - コンテンツスクリプト
+  - `popup/` - ポップアップUIコンポーネント
+- `client/atmos_extension/src/lib/` - 共有Svelteコンポーネント
+
+### データベース・インフラ
+- `db/` - データベースセットアップとマイグレーション
+- `taskfile/` - タスク自動化設定
+- `docs/` - プロジェクトドキュメントと設計ファイル
 
 ## 起動方法
 
