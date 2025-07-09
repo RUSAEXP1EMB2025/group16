@@ -7,10 +7,7 @@ use crate::{
         models::remo::{GetLigtingSignalsRequest, LightingSignals},
         ports::{AtmosdictService, RemoService},
     },
-    inbound::http::{
-        AppState,
-        api::{ApiError, ApiSuccess},
-    },
+    inbound::http::{AppState, api::ApiError},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, ToSchema)]
@@ -44,18 +41,14 @@ pub struct GetLightingSignalsHttpResponseData {
 pub async fn get_lighting_signals<S: RemoService + AtmosdictService>(
     State(state): State<AppState<S>>,
     Json(body): Json<GetLightingSignalsHttpRequestBody>,
-) -> Result<ApiSuccess<GetLightingSignalsHttpResponseData>, ApiError> {
+) -> Result<Json<GetLightingSignalsHttpResponseData>, ApiError> {
     let domain_req = body.try_into_domain();
 
-    state
+    let body = state
         .service
         .get_lighting_signals(&domain_req)
         .await
         .map_err(ApiError::from)
-        .map(|signals| {
-            ApiSuccess::new(
-                StatusCode::OK,
-                GetLightingSignalsHttpResponseData { signals },
-            )
-        })
+        .map(|signals| GetLightingSignalsHttpResponseData { signals })?;
+    Ok(Json(body))
 }

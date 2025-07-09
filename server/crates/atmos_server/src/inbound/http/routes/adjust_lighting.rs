@@ -3,10 +3,7 @@ use crate::{
         models::remo::AdjustLigtingRequest,
         ports::{AtmosdictService, RemoService},
     },
-    inbound::http::{
-        AppState,
-        api::{ApiError, ApiSuccess},
-    },
+    inbound::http::{AppState, api::ApiError},
 };
 
 use atmos_freq::SiteData;
@@ -72,26 +69,23 @@ pub struct AdjustLightingHttpResponseData {
     description = "部屋の電気をサイト内容から調整",
     request_body = AdjustLightingHttpRequestBody,
     responses(
-        (status = 200, description = "Success", body = ApiSuccess<AdjustLightingHttpResponseData>),
+        (status = 200, description = "Success", body = AdjustLightingHttpResponseData),
     ),
 )]
 pub async fn adjust_lighting<S: RemoService + AtmosdictService>(
     State(state): State<AppState<S>>,
     Json(body): Json<AdjustLightingHttpRequestBody>,
-) -> Result<ApiSuccess<AdjustLightingHttpResponseData>, ApiError> {
+) -> Result<Json<AdjustLightingHttpResponseData>, ApiError> {
     let domain_req = body.try_into_domain()?;
 
-    state
+    let body = state
         .service
         .adjust_lighting(&domain_req)
         .await
         .map_err(ApiError::from)
-        .map(|_| {
-            ApiSuccess::new(
-                StatusCode::OK,
-                AdjustLightingHttpResponseData {
-                    message: "Successfly adjusted lighting amount",
-                },
-            )
-        })
+        .map(|_| AdjustLightingHttpResponseData {
+            message: "Successfly adjusted lighting amount",
+        })?;
+
+    Ok(Json(body))
 }

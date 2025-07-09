@@ -1,5 +1,6 @@
 import type { SiteDataRequest, SiteExtractor } from "../types/content";
 import { getAllTextNodes } from "../utils/dom";
+import { atmosApi } from "../../api/client";
 
 export class GenericExtractor implements SiteExtractor {
   private dictionary: string[] = [];
@@ -15,11 +16,8 @@ export class GenericExtractor implements SiteExtractor {
 
   async extract(): Promise<SiteDataRequest | undefined> {
     try {
-      // TODO: バックエンドから辞書を取得
-      // 現在はプレースホルダーとして空の配列を使用
       if (this.dictionary.length === 0) {
-        console.error("Dictionary not loaded yet");
-        return;
+        await this.loadDictionary();
       }
 
       const keywords = this.searchDictionaryInPage();
@@ -59,12 +57,14 @@ export class GenericExtractor implements SiteExtractor {
   }
 
   async loadDictionary(): Promise<void> {
-    // TODO: バックエンドAPIから辞書を取得
-    // const response = await fetch('/api/dictionary');
-    // const dictionary = await response.json();
-    // this.setDictionary(dictionary);
-
-    // 現在はプレースホルダー
-    console.log("Dictionary loading not implemented yet");
+    try {
+      const response = await atmosApi.get_atmoswords();
+      const atmoswords = Array.from(response.atmoswords);
+      this.setDictionary(atmoswords);
+      console.log(`Dictionary loaded: ${atmoswords.length} words`);
+    } catch (error) {
+      console.error("Failed to load dictionary:", error);
+      throw error;
+    }
   }
 }

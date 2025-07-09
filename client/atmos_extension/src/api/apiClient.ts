@@ -1,6 +1,9 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
+const GetAtmosdictHttpResponseData = z
+  .object({ atmoswords: z.array(z.string()) })
+  .passthrough();
 const GetLightingSignalsHttpRequestBody = z
   .object({ remo_token: z.string() })
   .passthrough();
@@ -20,15 +23,16 @@ const SiteDataRequest = z.union([
 const AdjustLightingHttpRequestBody = z
   .object({ remo_token: z.string(), site_data: SiteDataRequest })
   .passthrough();
-const ApiSuccess_AdjustLightingHttpResponseData = z.array(
-  z.object({}).partial().passthrough()
-);
+const AdjustLightingHttpResponseData = z
+  .object({ message: z.string() })
+  .passthrough();
 
 export const schemas = {
+  GetAtmosdictHttpResponseData,
   GetLightingSignalsHttpRequestBody,
   SiteDataRequest,
   AdjustLightingHttpRequestBody,
-  ApiSuccess_AdjustLightingHttpResponseData,
+  AdjustLightingHttpResponseData,
 };
 
 const endpoints = makeApi([
@@ -38,7 +42,7 @@ const endpoints = makeApi([
     alias: "get_atmoswords",
     description: `サイトから取得するべきキーワード辞書を取得`,
     requestFormat: "json",
-    response: z.void(),
+    response: GetAtmosdictHttpResponseData,
   },
   {
     method: "get",
@@ -68,7 +72,7 @@ const endpoints = makeApi([
         schema: AdjustLightingHttpRequestBody,
       },
     ],
-    response: z.array(z.object({}).partial().passthrough()).min(2).max(2),
+    response: z.object({ message: z.string() }).passthrough(),
   },
 ]);
 

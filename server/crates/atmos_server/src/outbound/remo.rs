@@ -171,8 +171,7 @@ mod test {
         let remo = Remo {
             atmosdict: atmosdict().await,
         };
-        // TODO: 目標の明るさ値を調整する
-        let atmosfreq = 0.0;
+        let atmosfreq = 100.0;
 
         assert!(remo.apply_lighting(&remo_token, atmosfreq).await.is_ok())
     }

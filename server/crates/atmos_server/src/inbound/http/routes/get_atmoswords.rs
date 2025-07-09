@@ -1,17 +1,15 @@
 use std::collections::HashSet;
 
-use axum::{extract::State, http::StatusCode};
+use axum::{Json, extract::State};
 use serde::Serialize;
+use utoipa::ToSchema;
 
 use crate::{
     domain::ports::{AtmosdictService, RemoService},
-    inbound::http::{
-        AppState,
-        api::{ApiError, ApiSuccess},
-    },
+    inbound::http::{AppState, api::ApiError},
 };
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ToSchema)]
 pub struct GetAtmosdictHttpResponseData {
     atmoswords: HashSet<String>,
 }
@@ -22,18 +20,17 @@ pub struct GetAtmosdictHttpResponseData {
     summary = "Get Atmoswords",
     description = "サイトから取得するべきキーワード辞書を取得",
     responses(
-        (status = 200, description = "Success"),
+        (status = 200, description = "Success", body = GetAtmosdictHttpResponseData),
     ),
 )]
 pub async fn get_atmoswords<S: RemoService + AtmosdictService>(
     State(state): State<AppState<S>>,
-) -> Result<ApiSuccess<GetAtmosdictHttpResponseData>, ApiError> {
-    state
+) -> Result<Json<GetAtmosdictHttpResponseData>, ApiError> {
+    let body = state
         .service
         .get_all_atmoswords()
         .await
         .map_err(ApiError::from)
-        .map(|atmoswords| {
-            ApiSuccess::new(StatusCode::OK, GetAtmosdictHttpResponseData { atmoswords })
-        })
+        .map(|atmoswords| GetAtmosdictHttpResponseData { atmoswords })?;
+    Ok(Json(body))
 }
