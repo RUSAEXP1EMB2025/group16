@@ -45,10 +45,20 @@ Atmosは、Webコンテンツを解析して自動的にNature Remoスマート�
 
 ## 起動方法
 
-### 1. Taskfileを使用したローカル開発
+### 1. ローカル開発環境での起動
 
-開発環境の起動:
+#### 初回セットアップ
 ```bash
+# データベース作成
+task db:create
+
+# データベースマイグレーション実行
+task db:migrate
+```
+
+#### 開発環境の起動
+```bash
+# 拡張機能とサーバーを同時に起動
 task dev
 ```
 
@@ -61,9 +71,21 @@ task extension:dev
 task server:dev
 ```
 
+#### 型生成
+```bash
+task gen  # TypeScript型とAPIクライアントを生成
+```
+
 ### 2. Dockerを使用した起動
 
-Docker環境での起動:
+#### 初回セットアップ
+```bash
+# データベース作成とマイグレーション（初回のみ）
+task db:create
+task db:migrate
+```
+
+#### Docker環境での起動
 ```bash
 task up
 ```
