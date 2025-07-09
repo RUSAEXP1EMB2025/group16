@@ -36,20 +36,6 @@ impl DatabaseIntegrationTestHelper {
 
         Self { service }
     }
-
-    async fn new_with_sample_data() -> Self {
-        let helper = Self::new().await;
-
-        // サンプルデータを挿入
-        helper.insert_sample_data().await;
-
-        helper
-    }
-
-    async fn insert_sample_data(&self) {
-        // このメソッドは実際の実装では、データベースに直接サンプルデータを挿入します
-        // 今回はテストのためのプレースホルダーとして残しておきます
-    }
 }
 
 /// 辞書データの取得テスト
@@ -153,7 +139,7 @@ async fn test_large_data_processing() {
     let helper = DatabaseIntegrationTestHelper::new().await;
 
     // 大量のキーワードを含む汎用リクエストを作成
-    let large_keywords: Vec<String> = (0..1000).map(|i| format!("キーワード{}", i)).collect();
+    let large_keywords: Vec<String> = (0..1000).map(|i| format!("キーワード{i}")).collect();
 
     let request = AdjustLigtingRequest {
         remo_token: "test_token".to_string(),
@@ -260,7 +246,7 @@ async fn test_long_term_database_connection() {
     let helper = DatabaseIntegrationTestHelper::new().await;
 
     // 複数回のアクセスを時間間隔を空けて実行
-    for i in 0..5 {
+    for _ in 0..5 {
         let result = helper.service.get_all_atmoswords().await;
 
         assert!(result.is_ok());
@@ -296,4 +282,3 @@ async fn test_database_statistics() {
     assert!(avg_word_length > 0);
     assert!(avg_word_length < 100); // 単語の平均長が100文字未満であることを確認
 }
-

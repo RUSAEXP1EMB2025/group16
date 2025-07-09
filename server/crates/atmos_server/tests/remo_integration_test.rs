@@ -247,10 +247,10 @@ async fn test_get_lighting_signals_with_real_token() {
     let signals = result.unwrap();
     // 照明信号が取得できることを確認（LightingSignalsの構造に基づく）
     // on, off, up, downフィールドが存在することを確認
-    assert!(!signals.on.id.is_none());
-    assert!(!signals.off.id.is_none());
-    assert!(!signals.up.id.is_none());
-    assert!(!signals.down.id.is_none());
+    assert!(signals.on.id.is_some());
+    assert!(signals.off.id.is_some());
+    assert!(signals.up.id.is_some());
+    assert!(signals.down.id.is_some());
 }
 
 /// 実際のトークンを使用した照明調整テスト（ignored）
